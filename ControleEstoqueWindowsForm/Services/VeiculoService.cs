@@ -41,5 +41,9 @@ namespace ControleEstoqueWindowsForm.Services
         {
             return veiculoDAO.BuscarVeiculoID(id, out mensagemErro);
         }
+        public List<Veiculo> PesquisarNomeCliente(string NomeCliente, out string mensagemErro)
+        {
+            return veiculoDAO.PesquisarNomeCliente(NomeCliente, out mensagemErro);
+        }
     }
 }

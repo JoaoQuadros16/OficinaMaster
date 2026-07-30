@@ -80,7 +80,6 @@ namespace ControleEstoqueWindowsForm.DAO
             {
                 conn.Open();
 
-                // CAST necessário: SQL Server não permite LIKE direto em coluna INT (diferente do MySQL, que converte automaticamente)
                 string sql = @"SELECT * FROM clientes 
                               WHERE CAST(id AS NVARCHAR(20)) LIKE @pesquisa
                               OR nome LIKE @pesquisa

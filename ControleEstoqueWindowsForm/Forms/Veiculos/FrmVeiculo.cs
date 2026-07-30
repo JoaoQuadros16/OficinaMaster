@@ -15,6 +15,7 @@ namespace ControleEstoqueWindowsForm
 {
     public partial class FrmVeiculo: Form
     {
+        private VeiculoService veiculoService = new VeiculoService();
         public FrmVeiculo()
         {
             InitializeComponent();
@@ -67,6 +68,17 @@ namespace ControleEstoqueWindowsForm
         private void dgvVeiculos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            string mensagemErro;
+            dgvVeiculos.DataSource = veiculoService.PesquisarNomeCliente(textBox1.Text, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao pesquisar: " + mensagemErro);
+            }
         }
     }
 }
