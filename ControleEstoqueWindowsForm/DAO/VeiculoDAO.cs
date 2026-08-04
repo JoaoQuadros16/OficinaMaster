@@ -87,6 +87,21 @@ namespace ControleEstoqueWindowsForm.DAO
             }
         }
 
+        private Veiculo MapearVeiculo(SqlDataReader reader)
+        {
+            return new Veiculo
+            {
+                Id = Convert.ToInt32(reader["id"]),
+                ClienteId = Convert.ToInt32(reader["clienteID"]),
+                NomeCliente = reader["NomeCliente"].ToString(),
+                Modelo = reader["modelo"].ToString(),
+                Marca = reader["marca"].ToString(),
+                Placa = reader["placa"].ToString(),
+                Ano = Convert.ToInt32(reader["ano"]),
+                Cor = reader["cor"].ToString()
+            };
+        }
+
         public List<Veiculo> PesquisarComponentesVeiculos(string pesquisa, out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -121,15 +136,7 @@ namespace ControleEstoqueWindowsForm.DAO
                         while (reader.Read())
                         {
                             Veiculo veiculo = new Veiculo();
-                            veiculo.Id = Convert.ToInt32(reader["id"]);
-                            veiculo.ClienteId = Convert.ToInt32(reader["clienteID"]);
-                            veiculo.NomeCliente = reader["NomeCliente"].ToString();
-                            veiculo.Modelo = reader["modelo"].ToString();
-                            veiculo.Marca = reader["marca"].ToString();
-                            veiculo.Placa = reader["placa"].ToString();
-                            veiculo.Ano = Convert.ToInt32(reader["ano"]);
-                            veiculo.Cor = reader["cor"].ToString();
-                            veiculos.Add(veiculo);
+                            veiculos.Add(MapearVeiculo(reader));
                         }
                     }
                 }
@@ -169,15 +176,7 @@ namespace ControleEstoqueWindowsForm.DAO
                         while (reader.Read())
                         {
                             Veiculo veiculo = new Veiculo();
-                            veiculo.Id = Convert.ToInt32(reader["id"]);
-                            veiculo.ClienteId = Convert.ToInt32(reader["clienteID"]);
-                            veiculo.NomeCliente = reader["NomeCliente"].ToString();
-                            veiculo.Modelo = reader["modelo"].ToString();
-                            veiculo.Marca = reader["marca"].ToString();
-                            veiculo.Placa = reader["placa"].ToString();
-                            veiculo.Ano = Convert.ToInt32(reader["ano"]);
-                            veiculo.Cor = reader["cor"].ToString();
-                            veiculos.Add(veiculo);
+                            veiculos.Add(MapearVeiculo(reader));
                         }
                     }
                     return veiculos;
