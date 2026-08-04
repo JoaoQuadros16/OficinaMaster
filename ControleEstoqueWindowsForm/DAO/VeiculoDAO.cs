@@ -87,6 +87,59 @@ namespace ControleEstoqueWindowsForm.DAO
             }
         }
 
+        public List<Veiculo> PesquisarComponentesVeiculos(string pesquisa, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+
+            List<Veiculo> veiculos = new List<Veiculo>();
+            try
+            {
+                using(SqlConnection conn = conexao.ObterConexao())
+                {
+                    conn.Open();
+
+                    string sql = @"SELECT 
+                    v.Id,
+                    v.ClienteId,
+                    c.Nome AS NomeCliente,
+                    v.Modelo,
+                    v.Marca,
+                    v.Ano,
+                    v.Placa,
+                    v.Cor
+                    FROM Veiculos v
+                    LEFT JOIN Clientes c ON v.ClienteId = c.Id
+                    WHERE(v.Placa LIKE @Pesquisa OR 
+                          v.Marca LIKE @Pesquisa OR 
+                          v.Modelo LIKE @Pesquisa OR 
+                          v.Cor  LIKE @Pesquisa)";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@Pesquisa", "%" + pesquisa + "%");
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Veiculo veiculo = new Veiculo();
+                            veiculo.Id = Convert.ToInt32(reader["id"]);
+                            veiculo.ClienteId = Convert.ToInt32(reader["clienteID"]);
+                            veiculo.NomeCliente = reader["NomeCliente"].ToString();
+                            veiculo.Modelo = reader["modelo"].ToString();
+                            veiculo.Marca = reader["marca"].ToString();
+                            veiculo.Placa = reader["placa"].ToString();
+                            veiculo.Ano = Convert.ToInt32(reader["ano"]);
+                            veiculo.Cor = reader["cor"].ToString();
+                            veiculos.Add(veiculo);
+                        }
+                    }
+                }
+                return veiculos;
+            } catch (Exception ex) 
+            {
+                mensagemErro = ex.Message;
+                return veiculos;
+            }
+        }
         public List<Veiculo> PesquisarNomeCliente(string NomeCliente, out string mensagemErro)
         {
             mensagemErro = string.Empty;

@@ -80,5 +80,16 @@ namespace ControleEstoqueWindowsForm
                 MessageBox.Show("Erro ao pesquisar: " + mensagemErro);
             }
         }
+
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            string mensagemErro;
+            dgvVeiculos.DataSource = veiculoService.PesquisarComponentesVeiculos(txtBuscar.Text, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao pesquisar: " + mensagemErro);
+            }
+        }
     }
 }
