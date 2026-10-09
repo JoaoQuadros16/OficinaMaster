@@ -164,6 +164,7 @@
             this.txtNome.Name = "txtNome";
             this.txtNome.Size = new System.Drawing.Size(544, 30);
             this.txtNome.TabIndex = 1;
+            this.txtNome.Leave += new System.EventHandler(this.txtNome_Leave);
             // 
             // lblNome
             // 

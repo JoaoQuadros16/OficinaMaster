@@ -1,4 +1,6 @@
-﻿using ControleEstoqueWindowsForm.Services;
+﻿using ControleEstoqueWindowsForm.Classes;
+using ControleEstoqueWindowsForm.Models;
+using ControleEstoqueWindowsForm.Services;
 using System;
 using System.Windows.Forms;
 
@@ -28,12 +30,19 @@ namespace ControleEstoqueWindowsForm
                 return;
             }
 
-            // ATENÇÃO: confirme a ordem dos parâmetros esperada pelo seu AutenticacaoService.
-            // Deixei como (usuario, senha) — se o método espera (senha, usuario), inverta aqui.
-            bool logado = autenticacao.ValidarLogin(txtUsuario.Text, txtSenha.Text);
+            string mensagemErro;
+            Usuario usuario = autenticacao.ValidarLogin(txtUsuario.Text, txtSenha.Text, out mensagemErro);
 
-            if (logado)
+            if (!string.IsNullOrEmpty(mensagemErro))
             {
+                MessageBox.Show("Erro ao conectar com o banco: " + mensagemErro, "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (usuario != null)
+            {
+                Sessao.UsuarioLogado = usuario;
                 MessageBox.Show("Usuário logado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 

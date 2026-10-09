@@ -17,7 +17,13 @@ namespace ControleEstoqueWindowsForm
         public void CarregarClientes()
         {
             ClienteService clienteService = new ClienteService();
-            List<Cliente> listaClientes = clienteService.ListarClientes();
+            string mensagemErro;
+            List<Cliente> listaClientes = clienteService.ListarClientes(out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar clientes: " + mensagemErro);
+            }
 
             dataGridView1.DataSource = listaClientes;
             dataGridView1.Columns["NomeExibicao"].Visible = false;
@@ -25,6 +31,10 @@ namespace ControleEstoqueWindowsForm
         private void FrmClientes_Load(object sender, EventArgs e)
         {
             // TODO: carregar a lista de clientes no dataGridView1
+            if (Sessao.UsuarioLogado.Nivel_acesso != "Administrador")
+            {
+                btnExcluir.Visible = false;
+            }
             CarregarClientes();
         }
 
@@ -32,7 +42,13 @@ namespace ControleEstoqueWindowsForm
         {
             // TODO: filtrar a lista de clientes conforme o texto digitado
             ClienteService clienteService = new ClienteService();
-            dataGridView1.DataSource = clienteService.PesquisarCliente(txtPesquisa.Text);
+            string mensagemErro;
+            dataGridView1.DataSource = clienteService.PesquisarCliente(txtPesquisa.Text, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao pesquisar: " + mensagemErro);
+            }
         }
 
         private void btnNovoCliente_Click(object sender, EventArgs e)
@@ -97,5 +113,6 @@ namespace ControleEstoqueWindowsForm
 
             CarregarClientes();
         }
+
     }
 }

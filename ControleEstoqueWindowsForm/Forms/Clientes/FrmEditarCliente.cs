@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ControleEstoqueWindowsForm.Validacoes;
 
 namespace ControleEstoqueWindowsForm
 {
@@ -25,19 +26,27 @@ namespace ControleEstoqueWindowsForm
         {
             ClienteService clienteService = new ClienteService();
 
-            Cliente cliente =  clienteService.BuscarIDCliente(_idCliente);
+            string mensagemErro;
+            Cliente cliente =  clienteService.BuscarIDCliente(_idCliente, out mensagemErro);
 
 
             if (cliente == null)
             {
-                MessageBox.Show("Cliente não encontrado.");
+                if (!string.IsNullOrEmpty(mensagemErro))
+                {
+                    MessageBox.Show("Erro ao carregar cliente: " + mensagemErro);
+                }
+                else
+                {
+                    MessageBox.Show("Cliente não encontrado.");
+                }
                 this.Close();
                 return;
             }
 
             txtNome.Text = cliente.Nome;
-            txtCpf.Text = cliente.Cpf;
-            txtTelefone.Text = cliente.Telefone;
+            txtCpf.Text = Formatador.FormatarCpf(cliente.Cpf);
+            txtTelefone.Text = Formatador.FormatarTelefone(cliente.Telefone);
             txtEmail.Text = cliente.Email;
         }
 
@@ -52,9 +61,17 @@ namespace ControleEstoqueWindowsForm
             cliente.Telefone = txtTelefone.Text;
 
             ClienteService clienteService = new ClienteService();
-            clienteService.AlterarCliente(cliente);
+            string mensagemErro;
+            bool sucesso = clienteService.AlterarCliente(cliente, out mensagemErro);
 
-            MessageBox.Show("Produto Alterado !");
+            if (sucesso)
+            {
+                MessageBox.Show("Cliente alterado com sucesso!");
+            }
+            else
+            {
+                MessageBox.Show(mensagemErro);
+            }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
@@ -72,6 +89,26 @@ namespace ControleEstoqueWindowsForm
         private void btnVoltar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void txtNome_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtNome, Formatador.FormatarNome);
+        }
+
+        private void txtCpf_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtCpf, Formatador.FormatarCpf);
+        }
+
+        private void txtTelefone_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtTelefone, Formatador.FormatarTelefone);
+        }
+
+        private void txtEmail_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtEmail, Formatador.FormatarEmail);
         }
     }
 }

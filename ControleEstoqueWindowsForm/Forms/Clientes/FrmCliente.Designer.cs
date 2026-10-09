@@ -28,10 +28,6 @@
             this.lblTitulo = new System.Windows.Forms.Label();
             this.lblPesquisa = new System.Windows.Forms.Label();
             this.txtPesquisa = new System.Windows.Forms.TextBox();
-            this.lblVeiculo = new System.Windows.Forms.Label();
-            this.txtVeiculo = new System.Windows.Forms.TextBox();
-            this.lblPlaca = new System.Windows.Forms.Label();
-            this.txtPlaca = new System.Windows.Forms.TextBox();
             this.btnNovoCliente = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.btnEditar = new System.Windows.Forms.Button();
@@ -68,7 +64,7 @@
             // 
             this.lblPesquisa.AutoSize = true;
             this.lblPesquisa.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblPesquisa.Location = new System.Drawing.Point(30, 90);
+            this.lblPesquisa.Location = new System.Drawing.Point(26, 133);
             this.lblPesquisa.Name = "lblPesquisa";
             this.lblPesquisa.Size = new System.Drawing.Size(55, 20);
             this.lblPesquisa.TabIndex = 1;
@@ -77,49 +73,11 @@
             // txtPesquisa
             // 
             this.txtPesquisa.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.txtPesquisa.Location = new System.Drawing.Point(100, 87);
+            this.txtPesquisa.Location = new System.Drawing.Point(104, 130);
             this.txtPesquisa.Name = "txtPesquisa";
             this.txtPesquisa.Size = new System.Drawing.Size(300, 29);
             this.txtPesquisa.TabIndex = 2;
             this.txtPesquisa.TextChanged += new System.EventHandler(this.txtPesquisa_TextChanged);
-            // 
-            // lblVeiculo
-            // 
-            this.lblVeiculo.AutoSize = true;
-            this.lblVeiculo.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblVeiculo.Location = new System.Drawing.Point(30, 125);
-            this.lblVeiculo.Name = "lblVeiculo";
-            this.lblVeiculo.Size = new System.Drawing.Size(60, 20);
-            this.lblVeiculo.TabIndex = 3;
-            this.lblVeiculo.Text = "Veículo:";
-            // 
-            // txtVeiculo
-            // 
-            this.txtVeiculo.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.txtVeiculo.Location = new System.Drawing.Point(100, 122);
-            this.txtVeiculo.Name = "txtVeiculo";
-            this.txtVeiculo.Size = new System.Drawing.Size(220, 29);
-            this.txtVeiculo.TabIndex = 4;
-            // 
-            // lblPlaca
-            // 
-            this.lblPlaca.AutoSize = true;
-            this.lblPlaca.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblPlaca.Location = new System.Drawing.Point(340, 125);
-            this.lblPlaca.Name = "lblPlaca";
-            this.lblPlaca.Size = new System.Drawing.Size(47, 20);
-            this.lblPlaca.TabIndex = 5;
-            this.lblPlaca.Text = "Placa:";
-            // 
-            // txtPlaca
-            // 
-            this.txtPlaca.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.txtPlaca.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.txtPlaca.Location = new System.Drawing.Point(400, 122);
-            this.txtPlaca.MaxLength = 8;
-            this.txtPlaca.Name = "txtPlaca";
-            this.txtPlaca.Size = new System.Drawing.Size(120, 29);
-            this.txtPlaca.TabIndex = 6;
             // 
             // btnNovoCliente
             // 
@@ -129,7 +87,7 @@
             this.btnNovoCliente.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNovoCliente.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnNovoCliente.ForeColor = System.Drawing.Color.White;
-            this.btnNovoCliente.Location = new System.Drawing.Point(650, 84);
+            this.btnNovoCliente.Location = new System.Drawing.Point(650, 121);
             this.btnNovoCliente.Name = "btnNovoCliente";
             this.btnNovoCliente.Size = new System.Drawing.Size(140, 32);
             this.btnNovoCliente.TabIndex = 7;
@@ -148,7 +106,7 @@
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(56)))), ((int)(((byte)(100)))));
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             dataGridViewCellStyle1.ForeColor = System.Drawing.Color.White;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -167,7 +125,7 @@
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView1.Size = new System.Drawing.Size(760, 285);
             this.dataGridView1.TabIndex = 8;
-            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
+ 
             // 
             // btnEditar
             // 
@@ -233,7 +191,7 @@
             this.btnVoltar.UseVisualStyleBackColor = false;
             this.btnVoltar.Click += new System.EventHandler(this.btnVoltar_Click);
             // 
-            // FrmClientes
+            // FrmCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -245,16 +203,12 @@
             this.Controls.Add(this.btnEditar);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.btnNovoCliente);
-            this.Controls.Add(this.txtPlaca);
-            this.Controls.Add(this.lblPlaca);
-            this.Controls.Add(this.txtVeiculo);
-            this.Controls.Add(this.lblVeiculo);
             this.Controls.Add(this.txtPesquisa);
             this.Controls.Add(this.lblPesquisa);
             this.Controls.Add(this.pnlTopo);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.MinimumSize = new System.Drawing.Size(720, 480);
-            this.Name = "FrmClientes";
+            this.Name = "FrmCliente";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Clientes - Oficina Master";
             this.Load += new System.EventHandler(this.FrmClientes_Load);
@@ -272,10 +226,6 @@
         private System.Windows.Forms.Label lblTitulo;
         private System.Windows.Forms.Label lblPesquisa;
         private System.Windows.Forms.TextBox txtPesquisa;
-        private System.Windows.Forms.Label lblVeiculo;
-        private System.Windows.Forms.TextBox txtVeiculo;
-        private System.Windows.Forms.Label lblPlaca;
-        private System.Windows.Forms.TextBox txtPlaca;
         private System.Windows.Forms.Button btnNovoCliente;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Button btnEditar;

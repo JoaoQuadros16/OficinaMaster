@@ -25,11 +25,19 @@ namespace ControleEstoqueWindowsForm
         private void FrmExcluirCliente_Load(object sender, EventArgs e)
         {
             ClienteService clienteService = new ClienteService();
-            Cliente cliente = clienteService.BuscarIDCliente(_idCliente);
+            string mensagemErro;
+            Cliente cliente = clienteService.BuscarIDCliente(_idCliente, out mensagemErro);
 
             if (cliente == null)
             {
-                MessageBox.Show("Cliente não encontrado.");
+                if (!string.IsNullOrEmpty(mensagemErro))
+                {
+                    MessageBox.Show("Erro ao carregar cliente: " + mensagemErro);
+                }
+                else
+                {
+                    MessageBox.Show("Cliente não encontrado.");
+                }
                 this.Close();
                 return;
             }
@@ -43,11 +51,19 @@ namespace ControleEstoqueWindowsForm
         private void btnConfirmar_Click(object sender, EventArgs e)
         {
             ClienteService clienteService = new ClienteService();
-            clienteService.DeletarCliente(_idCliente);
+            string mensagemErro;
+            bool sucesso = clienteService.DeletarCliente(_idCliente, out mensagemErro);
 
-            MessageBox.Show("Cliente excluído com sucesso!");
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            if (sucesso)
+            {
+                MessageBox.Show("Cliente excluído com sucesso!");
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show(mensagemErro);
+            }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)

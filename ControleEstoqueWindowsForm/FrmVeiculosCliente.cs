@@ -28,13 +28,6 @@ namespace ControleEstoqueWindowsForm
             string mensagemErro;
             List<Veiculo> todos = veiculoService.ListarVeiculo(out mensagemErro);
 
-            string debug = "idCliente buscado: " + idCliente + "\n\n";
-            foreach (var v in todos)
-            {
-                debug += "Veiculo Id " + v.Id + " -> ClienteId: " + v.ClienteId + "\n";
-            }
-            MessageBox.Show(debug); // DEBUG
-
             if (!string.IsNullOrEmpty(mensagemErro))
             {
                 MessageBox.Show("Erro ao carregar veículos: " + mensagemErro);
@@ -89,9 +82,6 @@ namespace ControleEstoqueWindowsForm
 
             DialogResult confirmacao = MessageBox.Show("Deseja realmente excluir este veículo?", "Confirmar", MessageBoxButtons.YesNo);
             if (confirmacao != DialogResult.Yes) return;
-
-            // depois: veiculoService.ExcluirVeiculo(idVeiculo.Value, out mensagemErro);
-            // CarregarVeiculos();
         }
 
         private void btnVoltar_Click(object sender, EventArgs e)

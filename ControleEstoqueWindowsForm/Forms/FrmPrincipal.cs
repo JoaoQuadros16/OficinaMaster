@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ControleEstoqueWindowsForm.Models;
+using ControleEstoqueWindowsForm.Services;
+using System;
 using System.Windows.Forms;
 
 namespace ControleEstoqueWindowsForm
@@ -13,12 +15,30 @@ namespace ControleEstoqueWindowsForm
         private void FrmPrincipal_Load(object sender, EventArgs e)
         {
             // TODO: carregar dados do usuário logado, permissões, etc.
+
+            if (Sessao.UsuarioLogado == null)
+            {
+                MessageBox.Show("Nenhum usuário logado.");
+                Application.Exit();
+                return;
+            }
+            lblUsuarioLogado.Text = "Bem-vindo(a), " + Sessao.UsuarioLogado.Nome;
+
+            if (Sessao.UsuarioLogado.Nivel_acesso != "Administrador")
+            {
+                btnUsuarios.Visible = false;
+                btnConfiguracoes.Visible = false;
+            }
+            else
+            {
+                btnUsuarios.Visible = true;
+                btnConfiguracoes.Visible = true;
+            }
         }
 
         private void btnSair_Click(object sender, EventArgs e)
         {
-            // TODO: lógica de logout / retorno à tela de login
-            this.Close();
+            Application.Restart();
         }
 
         private void btnDashboard_Click(object sender, EventArgs e)
@@ -43,29 +63,28 @@ namespace ControleEstoqueWindowsForm
         private void btnOrdensServico_Click(object sender, EventArgs e)
         {
             // TODO: exibir tela de Ordens de Serviço em pnlConteudo
+            FrmOrdensServico tela = new FrmOrdensServico();
+            tela.ShowDialog();
         }
 
         private void btnEstoque_Click(object sender, EventArgs e)
         {
             // TODO: exibir tela de Estoque / Peças em pnlConteudo
-            FrmProduto tela = new FrmProduto();
+            FrmEstoque tela = new FrmEstoque();
             tela.ShowDialog();
         }
 
         private void btnServicos_Click(object sender, EventArgs e)
         {
             // TODO: exibir tela de Serviços em pnlConteudo
-        }
-
-        private void btnFinanceiro_Click(object sender, EventArgs e)
-        {
-            // TODO: exibir tela de Financeiro em pnlConteudo
+            FrmServicos tela = new FrmServicos();
+            tela.ShowDialog();
         }
 
         private void btnUsuarios_Click(object sender, EventArgs e)
         {
             // TODO: exibir tela de Usuários em pnlConteudo
-            FrmCadastroUsuario tela = new FrmCadastroUsuario();
+            FrmUsuarios tela = new FrmUsuarios();
             tela.ShowDialog();
         }
 
@@ -74,7 +93,7 @@ namespace ControleEstoqueWindowsForm
             // TODO: exibir tela de Configurações em pnlConteudo
         }
 
-        private void lblUsuarioLogado_Click(object sender, EventArgs e)
+        private void pnlConteudo_Paint(object sender, PaintEventArgs e)
         {
 
         }

@@ -127,6 +127,7 @@
             this.txtAno.Name = "txtAno";
             this.txtAno.Size = new System.Drawing.Size(170, 30);
             this.txtAno.TabIndex = 9;
+            this.txtAno.Leave += new System.EventHandler(this.txtAno_Leave);
             // 
             // label5
             // 
@@ -146,6 +147,7 @@
             this.txtPlaca.Name = "txtPlaca";
             this.txtPlaca.Size = new System.Drawing.Size(170, 30);
             this.txtPlaca.TabIndex = 7;
+            this.txtPlaca.Leave += new System.EventHandler(this.txtPlaca_Leave);
             // 
             // label4
             // 

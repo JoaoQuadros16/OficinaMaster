@@ -29,7 +29,6 @@ namespace ControleEstoqueWindowsForm.DAO
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
 
-                    cmd.Parameters.AddWithValue("@id", veiculo.Id);
                     cmd.Parameters.AddWithValue("@ClienteId", veiculo.ClienteId);
                     cmd.Parameters.AddWithValue("@placa", veiculo.Placa);
                     cmd.Parameters.AddWithValue("@marca", veiculo.Marca);
@@ -93,7 +92,7 @@ namespace ControleEstoqueWindowsForm.DAO
             {
                 Id = Convert.ToInt32(reader["id"]),
                 ClienteId = Convert.ToInt32(reader["clienteID"]),
-                NomeCliente = reader["NomeCliente"].ToString(),
+                NomeCliente = reader["NomeCliente"] != DBNull.Value ? reader["NomeCliente"].ToString() : "Cliente não encontrado",
                 Modelo = reader["modelo"].ToString(),
                 Marca = reader["marca"].ToString(),
                 Placa = reader["placa"].ToString(),
@@ -135,7 +134,6 @@ namespace ControleEstoqueWindowsForm.DAO
                     {
                         while (reader.Read())
                         {
-                            Veiculo veiculo = new Veiculo();
                             veiculos.Add(MapearVeiculo(reader));
                         }
                     }
@@ -175,7 +173,6 @@ namespace ControleEstoqueWindowsForm.DAO
                     {
                         while (reader.Read())
                         {
-                            Veiculo veiculo = new Veiculo();
                             veiculos.Add(MapearVeiculo(reader));
                         }
                     }
@@ -221,17 +218,7 @@ namespace ControleEstoqueWindowsForm.DAO
                     {
                         while (reader.Read())
                         {
-                            Veiculo veiculo1 = new Veiculo();
-                            veiculo1.Id = Convert.ToInt32(reader["id"]);
-                            veiculo1.ClienteId = Convert.ToInt32(reader["ClienteId"]);
-                            veiculo1.NomeCliente = reader["NomeCliente"] != DBNull.Value ? reader["NomeCliente"].ToString() : "Cliente não encontrado";
-                            veiculo1.Modelo = reader["Modelo"].ToString();
-                            veiculo1.Marca = reader["Marca"].ToString();
-                            veiculo1.Placa = reader["Placa"].ToString();
-                            veiculo1.Ano = Convert.ToInt32(reader["Ano"]);
-                            veiculo1.Cor = reader["Cor"].ToString();
-
-                            veiculo.Add(veiculo1);
+                            veiculo.Add(MapearVeiculo(reader));
                         }
                     }
                 }

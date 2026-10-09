@@ -45,9 +45,6 @@
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=8.0.0.2, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.8.0.2\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="MySqlConnector, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d33d3e53aa5f8c92, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySqlConnector.2.6.1\lib\net471\MySqlConnector.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
@@ -82,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Conexao.cs" />
+    <Compile Include="DAO\ServicoDAO.cs" />
     <Compile Include="DAO\VeiculoDAO.cs" />
     <Compile Include="Forms\Clientes\FrmEditarCliente.cs">
       <SubType>Form</SubType>
@@ -94,6 +92,42 @@
     </Compile>
     <Compile Include="Forms\Clientes\FrmExcluirCliente.Designer.cs">
       <DependentUpon>FrmExcluirCliente.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\EstoqueProduto\FrmEstoque.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EstoqueProduto\FrmEstoque.Designer.cs">
+      <DependentUpon>FrmEstoque.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\OrdensServico\FrmOrdemServico .cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OrdensServico\FrmOrdemServico .Designer.cs">
+      <DependentUpon>FrmOrdemServico .cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\OrdensServico\FrmOrdensServico.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OrdensServico\FrmOrdensServico.Designer.cs">
+      <DependentUpon>FrmOrdensServico.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Servicos\FrmServicos.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Servicos\FrmServicos.Designer.cs">
+      <DependentUpon>FrmServicos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Usuarios\FrmEditarUsuario.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Usuarios\FrmEditarUsuario.Designer.cs">
+      <DependentUpon>FrmEditarUsuario.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Usuarios\FrmUsuarios.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Usuarios\FrmUsuarios.Designer.cs">
+      <DependentUpon>FrmUsuarios.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Veiculos\FrmVeiculo.cs">
       <SubType>Form</SubType>
@@ -119,6 +153,8 @@
     <Compile Include="FrmVeiculosCliente.Designer.cs">
       <DependentUpon>FrmVeiculosCliente.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Servico.cs" />
+    <Compile Include="Models\Sessao.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Models\Cliente.cs" />
     <Compile Include="DAO\ClienteDAO.cs" />
@@ -136,44 +172,8 @@
       <DependentUpon>FrmCliente.cs</DependentUpon>
     </Compile>
     <Compile Include="DAO\UsuarioDAO.cs" />
-    <Compile Include="Forms\EstoqueProduto\FrmDeletarProduto.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmDeletarProduto.Designer.cs">
-      <DependentUpon>FrmDeletarProduto.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmEditarProduto.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmEditarProduto.Designer.cs">
-      <DependentUpon>FrmEditarProduto.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmAlterarEstoque.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmAlterarEstoque.Designer.cs">
-      <DependentUpon>FrmAlterarEstoque.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmListarProdutos.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmListarProdutos.Designer.cs">
-      <DependentUpon>FrmListarProdutos.cs</DependentUpon>
-    </Compile>
     <Compile Include="DAO\ProdutoDAO.cs" />
     <Compile Include="Services\Estoque.cs" />
-    <Compile Include="Forms\EstoqueProduto\FrmProduto.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmProduto.Designer.cs">
-      <DependentUpon>FrmProduto.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmCadastroProduto.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EstoqueProduto\FrmCadastroProduto.Designer.cs">
-      <DependentUpon>FrmCadastroProduto.cs</DependentUpon>
-    </Compile>
     <Compile Include="Models\Produto.cs" />
     <Compile Include="Forms\Usuarios\FrmCadastroUsuario.cs">
       <SubType>Form</SubType>
@@ -196,9 +196,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AutenticacaoService.cs" />
+    <Compile Include="Services\ServicoServices.cs" />
     <Compile Include="Services\UsuarioService.cs" />
     <Compile Include="Models\Veiculo.cs" />
     <Compile Include="Services\VeiculoService.cs" />
+    <Compile Include="Validacoes\Formatador.cs" />
+    <Compile Include="Validacoes\Validacoes.cs" />
     <EmbeddedResource Include="Forms\Clientes\FrmCadastroCliente.resx">
       <DependentUpon>FrmCadastroCliente.cs</DependentUpon>
     </EmbeddedResource>
@@ -208,32 +211,32 @@
     <EmbeddedResource Include="Forms\Clientes\FrmEditarCliente.resx">
       <DependentUpon>FrmEditarCliente.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EstoqueProduto\FrmDeletarProduto.resx">
-      <DependentUpon>FrmDeletarProduto.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EstoqueProduto\FrmEditarProduto.resx">
-      <DependentUpon>FrmEditarProduto.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EstoqueProduto\FrmProduto.resx">
-      <DependentUpon>FrmProduto.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EstoqueProduto\FrmAlterarEstoque.resx">
-      <DependentUpon>FrmAlterarEstoque.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EstoqueProduto\FrmCadastroProduto.resx">
-      <DependentUpon>FrmCadastroProduto.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EstoqueProduto\FrmListarProdutos.resx">
-      <DependentUpon>FrmListarProdutos.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\EstoqueProduto\FrmEstoque.resx">
+      <DependentUpon>FrmEstoque.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmPrincipal.resx">
       <DependentUpon>FrmPrincipal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OrdensServico\FrmOrdemServico .resx">
+      <DependentUpon>FrmOrdemServico .cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OrdensServico\FrmOrdensServico.resx">
+      <DependentUpon>FrmOrdensServico.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Servicos\FrmServicos.resx">
+      <DependentUpon>FrmServicos.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Usuarios\FrmCadastroUsuario.resx">
       <DependentUpon>FrmCadastroUsuario.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmLogin.resx">
       <DependentUpon>FrmLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Usuarios\FrmEditarUsuario.resx">
+      <DependentUpon>FrmEditarUsuario.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Usuarios\FrmUsuarios.resx">
+      <DependentUpon>FrmUsuarios.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Veiculos\FrmEditarVeiculos.resx">
       <DependentUpon>FrmEditarVeiculos.cs</DependentUpon>

@@ -4,6 +4,7 @@ using ControleEstoqueWindowsForm.Services;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ControleEstoqueWindowsForm.Validacoes;
 
 namespace ControleEstoqueWindowsForm
 {
@@ -32,8 +33,6 @@ namespace ControleEstoqueWindowsForm
             {
                 veiculoAtual = veiculoService.BuscarVeiculoID(idVeiculo, out mensagemErro);
 
-                MessageBox.Show("ClienteId do veículo: " + veiculoAtual.ClienteId);
-
                 if (veiculoAtual == null)
                 {
                     MessageBox.Show("Veículo não encontrado. Erro: " + mensagemErro + " | ID buscado: " + idVeiculo);
@@ -47,7 +46,7 @@ namespace ControleEstoqueWindowsForm
                 txtAno.Text = veiculoAtual.Ano.ToString();
                 txtCor.Text = veiculoAtual.Cor;
 
-                Cliente cliente = clienteDAO.BuscarClienteID(veiculoAtual.ClienteId);
+                Cliente cliente = clienteDAO.BuscarClienteID(veiculoAtual.ClienteId, out mensagemErro);
                 cboCliente.Items.Clear();
                 if (cliente != null)
                 {
@@ -116,6 +115,16 @@ namespace ControleEstoqueWindowsForm
         private void grpDados_Enter(object sender, EventArgs e)
         {
 
+        }
+
+        private void txtPlaca_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtPlaca, Formatador.FormatarPlaca);
+        }
+
+        private void txtAno_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtAno, Formatador.FormatarAno);
         }
     }
 }

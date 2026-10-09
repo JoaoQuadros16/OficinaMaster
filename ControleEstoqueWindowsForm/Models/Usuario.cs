@@ -13,5 +13,7 @@ namespace ControleEstoqueWindowsForm.Classes
         public string Login { get; set; }
         public string SenhaHash { get; set; }
         public bool Ativo { get; set; }
+
+        public string Nivel_acesso { get; set; }
     }
 }

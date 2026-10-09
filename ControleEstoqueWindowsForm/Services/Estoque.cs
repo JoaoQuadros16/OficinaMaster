@@ -4,37 +4,72 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ControleEstoqueWindowsForm.Validacoes;
 
 namespace ControleEstoqueWindowsForm
 {
     public class Estoque
     {
         ProdutoDAO dao = new ProdutoDAO();
-        public void CadastrarProduto(Produto produto)
+        public bool CadastrarProduto(Produto produto, out string mensagemErro)
         {
-            dao.CadastrarProduto(produto);
+            if (!Validador.CampoObrigatorio(produto.Nome, "Nome", out mensagemErro))
+            {
+                return false;
+            }
+            if (produto.Quantidade < 0)
+            {
+                mensagemErro = "A quantidade não pode ser negativa.";
+                return false;
+            }
+
+            bool sucesso = dao.CadastrarProduto(produto, out mensagemErro);
+
+            return sucesso;
         }
-        public List<Produto> ListarProdutos()
+        public List<Produto> ListarProdutos(out string mensagemErro)
         {
-            return dao.ListarProdutos();
+            return dao.ListarProdutos(out mensagemErro);
         }
 
-        public List<Produto> BuscarProduto(string pesquisa)
+        public List<Produto> BuscarProduto(string pesquisa, out string mensagemErro)
         {
-           return dao.BuscarProduto(pesquisa);
+           return dao.BuscarProduto(pesquisa, out mensagemErro);
         }
-        public void AlterarEstoque(Produto produto)
+        public bool AlterarEstoque(Produto produto, out string mensagemErro)
         {
-            dao.AlterarEstoque(produto);
+            mensagemErro = string.Empty;
+
+            // a tela envia o saldo já calculado; negativo = saída maior que o saldo
+            if (produto.Quantidade < 0)
+            {
+                mensagemErro = "A saída não pode ser maior que o saldo em estoque.";
+                return false;
+            }
+
+            bool sucesso = dao.AlterarEstoque(produto, out mensagemErro);
+
+            return sucesso;
         }
-        public void AlterarNomeProduto(Produto produto)
+        public bool AlterarNomeProduto(Produto produto, out string mensagemErro)
         {
-            dao.AlterarNomeProduto(produto);
+            if (!Validador.CampoObrigatorio(produto.Nome, "Nome", out mensagemErro))
+            {
+                return false;
+            }
+
+            bool sucesso = dao.AlterarNomeProduto(produto, out mensagemErro);
+
+            return sucesso;
         }
 
-        public void DeletarProduto(int id)
+        public bool DeletarProduto(int id, out string mensagemErro)
         {
-            dao.DeletarProduto(id);
+            mensagemErro = string.Empty;
+
+            bool sucesso = dao.DeletarProduto(id, out mensagemErro);
+
+            return sucesso;
         }
     }               
 }

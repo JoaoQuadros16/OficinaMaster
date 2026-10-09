@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ControleEstoqueWindowsForm.Validacoes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,10 +15,9 @@ namespace ControleEstoqueWindowsForm.Models
         public string Telefone { get; set; }
         public string Email { get; set; }
         public string VeiculosResumo { get; set; }
-
         public string NomeExibicao
         {
-            get { return Nome + " - " + Cpf; }
+            get { return Nome + " - " + Formatador.FormatarCpf(Cpf); }
         }
         public DateTime DataCadastro { get; set; }
     }

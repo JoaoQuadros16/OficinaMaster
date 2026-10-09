@@ -12,139 +12,199 @@ namespace ControleEstoqueWindowsForm
     {
         Conexao conexao = new Conexao();
 
-        public void CadastrarProduto(Produto produto)
+        public bool CadastrarProduto(Produto produto, out string mensagemErro)
         {
-            using (SqlConnection conn = conexao.ObterConexao())
+            mensagemErro = string.Empty;
+
+            try
             {
-                conn.Open();
+                using (SqlConnection conn = conexao.ObterConexao())
+                {
+                    conn.Open();
 
-                string sql = "INSERT INTO produto (nome, quantidade) VALUES (@nome, @quantidade)";
+                    string sql = "INSERT INTO produto (nome, quantidade) VALUES (@nome, @quantidade)";
 
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                    SqlCommand cmd = new SqlCommand(sql, conn);
 
-                cmd.Parameters.AddWithValue("@nome", produto.Nome);
-                cmd.Parameters.AddWithValue("@quantidade", produto.Quantidade);
+                    cmd.Parameters.AddWithValue("@nome", produto.Nome);
+                    cmd.Parameters.AddWithValue("@quantidade", produto.Quantidade);
 
-                cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+                return false;
             }
         }
 
-        public List<Produto> ListarProdutos()
+        public List<Produto> ListarProdutos(out string mensagemErro)
         {
+            mensagemErro = string.Empty;
             List<Produto> produtos = new List<Produto>();
 
-            using (SqlConnection conn = conexao.ObterConexao())
+            try
             {
-                conn.Open();
-
-                string sql = "SELECT * FROM produto";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlConnection conn = conexao.ObterConexao())
                 {
-                    while (reader.Read())
+                    conn.Open();
+
+                    string sql = "SELECT * FROM produto";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        Produto produto = new Produto();
+                        while (reader.Read())
+                        {
+                            Produto produto = new Produto();
 
-                        produto.Id = Convert.ToInt32(reader["id"]);
-                        produto.Nome = reader["nome"].ToString();
-                        produto.Quantidade = Convert.ToInt32(reader["quantidade"]);
+                            produto.Id = Convert.ToInt32(reader["id"]);
+                            produto.Nome = reader["nome"].ToString();
+                            produto.Quantidade = Convert.ToInt32(reader["quantidade"]);
 
-                        produtos.Add(produto);
+                            produtos.Add(produto);
+                        }
                     }
                 }
+                return produtos;
             }
-
-            return produtos;
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+                return produtos;
+            }
         }
 
-        public List<Produto> BuscarProduto(string pesquisa)
+        public List<Produto> BuscarProduto(string pesquisa, out string mensagemErro)
         {
+            mensagemErro = string.Empty;
             List<Produto> objetoProduto = new List<Produto>();
 
-            using (SqlConnection conn = conexao.ObterConexao())
+            try
             {
-                conn.Open();
-
-                // CAST necessário: SQL Server não permite LIKE direto em coluna INT (diferente do MySQL, que converte automaticamente)
-                string sql = "SELECT * FROM produto " +
-                             "WHERE CAST(id AS NVARCHAR(20)) LIKE @pesquisa " +
-                             "OR nome LIKE @pesquisa";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-
-                cmd.Parameters.AddWithValue("@pesquisa", "%" + pesquisa + "%");
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlConnection conn = conexao.ObterConexao())
                 {
-                    while (reader.Read())
+                    conn.Open();
+
+                    // CAST necessário: SQL Server não permite LIKE direto em coluna INT (diferente do MySQL, que converte automaticamente)
+                    string sql = "SELECT * FROM produto " +
+                                 "WHERE CAST(id AS NVARCHAR(20)) LIKE @pesquisa " +
+                                 "OR nome LIKE @pesquisa";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+
+                    cmd.Parameters.AddWithValue("@pesquisa", "%" + pesquisa + "%");
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        Produto produto = new Produto
+                        while (reader.Read())
                         {
-                            Id = Convert.ToInt32(reader["id"]),
-                            Nome = reader["nome"].ToString(),
-                            Quantidade = Convert.ToInt32(reader["quantidade"]),
-                        };
-                        objetoProduto.Add(produto);
+                            Produto produto = new Produto
+                            {
+                                Id = Convert.ToInt32(reader["id"]),
+                                Nome = reader["nome"].ToString(),
+                                Quantidade = Convert.ToInt32(reader["quantidade"]),
+                            };
+                            objetoProduto.Add(produto);
+                        }
                     }
                 }
+                return objetoProduto;
             }
-
-            return objetoProduto;
-        }
-
-        public void AlterarEstoque(Produto produto)
-        {
-            using (SqlConnection conn = conexao.ObterConexao())
+            catch (Exception ex)
             {
-                conn.Open();
-
-                string sql = "UPDATE produto " +
-                             "SET quantidade = @quantidade " +
-                             "WHERE id = @id";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-
-                cmd.Parameters.AddWithValue("@quantidade", produto.Quantidade);
-                cmd.Parameters.AddWithValue("@id", produto.Id);
-
-                cmd.ExecuteNonQuery();
+                mensagemErro = ex.Message;
+                return objetoProduto;
             }
         }
 
-        public void AlterarNomeProduto(Produto produto)
+        public bool AlterarEstoque(Produto produto, out string mensagemErro)
         {
-            using (SqlConnection conn = conexao.ObterConexao())
+            mensagemErro = string.Empty;
+
+            try
             {
-                conn.Open();
+                using (SqlConnection conn = conexao.ObterConexao())
+                {
+                    conn.Open();
 
-                string sql = "UPDATE produto " +
-                             "SET nome = @nome " +
-                             "WHERE id = @id";
+                    string sql = "UPDATE produto " +
+                                 "SET quantidade = @quantidade " +
+                                 "WHERE id = @id";
 
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                    SqlCommand cmd = new SqlCommand(sql, conn);
 
-                cmd.Parameters.AddWithValue("@nome", produto.Nome);
-                cmd.Parameters.AddWithValue("@id", produto.Id);
+                    cmd.Parameters.AddWithValue("@quantidade", produto.Quantidade);
+                    cmd.Parameters.AddWithValue("@id", produto.Id);
 
-                cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+                return false;
             }
         }
 
-        public void DeletarProduto(int id)
+        public bool AlterarNomeProduto(Produto produto, out string mensagemErro)
         {
-            using (SqlConnection conn = conexao.ObterConexao())
+            mensagemErro = string.Empty;
+
+            try
             {
-                conn.Open();
+                using (SqlConnection conn = conexao.ObterConexao())
+                {
+                    conn.Open();
 
-                string sql = "DELETE FROM produto WHERE id = @id";
+                    string sql = "UPDATE produto " +
+                                 "SET nome = @nome " +
+                                 "WHERE id = @id";
 
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                    SqlCommand cmd = new SqlCommand(sql, conn);
 
-                cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@nome", produto.Nome);
+                    cmd.Parameters.AddWithValue("@id", produto.Id);
 
-                cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+                return false;
+            }
+        }
+
+        public bool DeletarProduto(int id, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+
+            try
+            {
+                using (SqlConnection conn = conexao.ObterConexao())
+                {
+                    conn.Open();
+
+                    string sql = "DELETE FROM produto WHERE id = @id";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+                return false;
             }
         }
     }

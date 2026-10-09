@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ControleEstoqueWindowsForm.Validacoes;
 
 namespace ControleEstoqueWindowsForm
 {
@@ -21,6 +22,11 @@ namespace ControleEstoqueWindowsForm
 
         private void FrmCadastroUsuario_Load(object sender, EventArgs e)
         {
+        }
+        public static class Perfis
+        {
+            public const string Administrador = "Administrador";
+            public const string Funcionario = "Funcionário";
         }
 
         private void btnSalvar_Click(object sender, EventArgs e)
@@ -41,6 +47,14 @@ namespace ControleEstoqueWindowsForm
                 return;
             }
 
+            // fica aqui (e não no Service) porque o Service só recebe a senha já criptografada
+            if (txtSenha.Text.Length < 6)
+            {
+                MessageBox.Show("A senha deve ter pelo menos 6 caracteres.", "Atenção",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             Usuario usuario = new Usuario();
             string nome = txtNome.Text;
             string login = txtLogin.Text;
@@ -51,13 +65,29 @@ namespace ControleEstoqueWindowsForm
             usuario.SenhaHash = hash;
             usuario.Nome = nome;
             usuario.Login = login;
-            // usuario.Perfil = rbAdministrador.Checked ? "Administrador" : "Funcionário"; // se sua classe Usuario tiver essa propriedade
+
+            if (rbAdministrador.Checked)
+            {
+                usuario.Nivel_acesso = Perfis.Administrador;
+            }
+            else
+            {
+                usuario.Nivel_acesso = Perfis.Funcionario;
+            }
 
             UsuarioService service = new UsuarioService();
-            service.CadastrarUsuario(usuario);
+            string mensagemErro;
+            bool sucesso = service.CadastrarUsuario(usuario, out mensagemErro);
 
-            MessageBox.Show("Usuario Cadastrado !");
-            this.Close();
+            if (sucesso)
+            {
+                MessageBox.Show("Usuario Cadastrado !");
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show(mensagemErro);
+            }
         }
 
         private void btnLimpar_Click(object sender, EventArgs e)
@@ -74,6 +104,11 @@ namespace ControleEstoqueWindowsForm
         private void btnVoltar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void txtNome_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtNome, Formatador.FormatarNome);
         }
     }
 }

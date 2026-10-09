@@ -30,7 +30,6 @@
             this.pnlMenu = new System.Windows.Forms.Panel();
             this.btnConfiguracoes = new System.Windows.Forms.Button();
             this.btnUsuarios = new System.Windows.Forms.Button();
-            this.btnFinanceiro = new System.Windows.Forms.Button();
             this.btnServicos = new System.Windows.Forms.Button();
             this.btnEstoque = new System.Windows.Forms.Button();
             this.btnOrdensServico = new System.Windows.Forms.Button();
@@ -84,7 +83,6 @@
             this.lblUsuarioLogado.Size = new System.Drawing.Size(157, 20);
             this.lblUsuarioLogado.TabIndex = 1;
             this.lblUsuarioLogado.Text = "Bem-vindo(a), Usuário";
-            this.lblUsuarioLogado.Click += new System.EventHandler(this.lblUsuarioLogado_Click);
             // 
             // lblTitulo
             // 
@@ -103,7 +101,6 @@
             this.pnlMenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(42)))), ((int)(((byte)(75)))));
             this.pnlMenu.Controls.Add(this.btnConfiguracoes);
             this.pnlMenu.Controls.Add(this.btnUsuarios);
-            this.pnlMenu.Controls.Add(this.btnFinanceiro);
             this.pnlMenu.Controls.Add(this.btnServicos);
             this.pnlMenu.Controls.Add(this.btnEstoque);
             this.pnlMenu.Controls.Add(this.btnOrdensServico);
@@ -123,7 +120,7 @@
             this.btnConfiguracoes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConfiguracoes.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnConfiguracoes.ForeColor = System.Drawing.Color.White;
-            this.btnConfiguracoes.Location = new System.Drawing.Point(0, 400);
+            this.btnConfiguracoes.Location = new System.Drawing.Point(0, 350);
             this.btnConfiguracoes.Name = "btnConfiguracoes";
             this.btnConfiguracoes.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
             this.btnConfiguracoes.Size = new System.Drawing.Size(220, 50);
@@ -140,7 +137,7 @@
             this.btnUsuarios.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnUsuarios.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnUsuarios.ForeColor = System.Drawing.Color.White;
-            this.btnUsuarios.Location = new System.Drawing.Point(0, 350);
+            this.btnUsuarios.Location = new System.Drawing.Point(0, 300);
             this.btnUsuarios.Name = "btnUsuarios";
             this.btnUsuarios.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
             this.btnUsuarios.Size = new System.Drawing.Size(220, 50);
@@ -149,23 +146,6 @@
             this.btnUsuarios.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnUsuarios.UseVisualStyleBackColor = false;
             this.btnUsuarios.Click += new System.EventHandler(this.btnUsuarios_Click);
-            // 
-            // btnFinanceiro
-            // 
-            this.btnFinanceiro.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnFinanceiro.FlatAppearance.BorderSize = 0;
-            this.btnFinanceiro.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnFinanceiro.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.btnFinanceiro.ForeColor = System.Drawing.Color.White;
-            this.btnFinanceiro.Location = new System.Drawing.Point(0, 300);
-            this.btnFinanceiro.Name = "btnFinanceiro";
-            this.btnFinanceiro.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
-            this.btnFinanceiro.Size = new System.Drawing.Size(220, 50);
-            this.btnFinanceiro.TabIndex = 6;
-            this.btnFinanceiro.Text = "💰  Financeiro";
-            this.btnFinanceiro.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnFinanceiro.UseVisualStyleBackColor = false;
-            this.btnFinanceiro.Click += new System.EventHandler(this.btnFinanceiro_Click);
             // 
             // btnServicos
             // 
@@ -278,6 +258,7 @@
             this.pnlConteudo.Name = "pnlConteudo";
             this.pnlConteudo.Size = new System.Drawing.Size(780, 580);
             this.pnlConteudo.TabIndex = 2;
+            this.pnlConteudo.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlConteudo_Paint);
             // 
             // lblConteudoPlaceholder
             // 
@@ -330,7 +311,6 @@
         private System.Windows.Forms.Button btnOrdensServico;
         private System.Windows.Forms.Button btnEstoque;
         private System.Windows.Forms.Button btnServicos;
-        private System.Windows.Forms.Button btnFinanceiro;
         private System.Windows.Forms.Button btnUsuarios;
         private System.Windows.Forms.Button btnConfiguracoes;
 

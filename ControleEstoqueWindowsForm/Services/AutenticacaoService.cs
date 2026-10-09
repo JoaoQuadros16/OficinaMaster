@@ -18,17 +18,17 @@ namespace ControleEstoqueWindowsForm.Services
         {
             return BCrypt.Net.BCrypt.HashPassword(senha);
         }
-        public bool ValidarLogin(string login, string senha)
+        public Usuario ValidarLogin(string login, string senha, out string mensagemErro)
         {
-            Usuario usuario = usuarioDAO.BuscarPorLogin(login);
+            Usuario usuario = usuarioDAO.BuscarPorLogin(login, out mensagemErro);
 
-            if (usuario == null)
-                return false;
+            if (usuario == null || !usuario.Ativo)
+                return null;
 
-            if (!usuario.Ativo)
-                return false;
+            if(! BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
+                return null;
 
-            return BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash);
+            return usuario;
         }
     }
 }

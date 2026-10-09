@@ -4,6 +4,7 @@ using ControleEstoqueWindowsForm.Services;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ControleEstoqueWindowsForm.Validacoes;
 
 namespace ControleEstoqueWindowsForm
 {
@@ -88,6 +89,16 @@ namespace ControleEstoqueWindowsForm
 
         private void cboCliente_SelectedIndexChanged(object sender, EventArgs e)
         {
+        }
+
+        private void txtPlaca_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtPlaca, Formatador.FormatarPlaca);
+        }
+
+        private void txtAno_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtAno, Formatador.FormatarAno);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using ControleEstoqueWindowsForm.Models;
 using ControleEstoqueWindowsForm.Services;
+using ControleEstoqueWindowsForm.Validacoes;
 
 namespace ControleEstoqueWindowsForm.Forms
 {
@@ -25,7 +26,14 @@ namespace ControleEstoqueWindowsForm.Forms
             cliente.Email = txtEmail.Text;
 
             ClienteService clienteService = new ClienteService();
-            int novoClienteId = clienteService.CadastrarCliente(cliente);
+            string mensagemErro;
+            int novoClienteId = clienteService.CadastrarCliente(cliente, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao cadastrar cliente: " + mensagemErro);
+                return;
+            }
 
             DialogResult resposta = MessageBox.Show(
                 "Cliente cadastrado com sucesso! Deseja cadastrar um veículo agora?",
@@ -38,18 +46,48 @@ namespace ControleEstoqueWindowsForm.Forms
                 frmVeiculo.ShowDialog();
             }
 
-            this.Close();
+            // deixa a tela pronta para o próximo cadastro
+            LimparCampos();
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
-            // TODO: limpar os campos do formulário
+            LimparCampos();
+        }
+
+        private void LimparCampos()
+        {
+            txtNome.Clear();
+            txtCpf.Clear();
+            txtTelefone.Clear();
+            txtEmail.Clear();
+            txtNome.Focus();
         }
 
         private void btnVoltar_Click(object sender, EventArgs e)
         {
-            // TODO: fechar esta tela / voltar ao menu anterior
-            this.Close();
+           FrmCliente frmCliente = new FrmCliente();
+           frmCliente.Show();
+        }
+
+        private void txtNome_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtNome, Formatador.FormatarNome);
+        }
+
+        private void txtCpf_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtCpf, Formatador.FormatarCpf);
+        }
+
+        private void txtTelefone_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtTelefone, Formatador.FormatarTelefone);
+        }
+
+        private void txtEmail_Leave(object sender, EventArgs e)
+        {
+            Formatador.Aplicar(txtEmail, Formatador.FormatarEmail);
         }
     }
 }

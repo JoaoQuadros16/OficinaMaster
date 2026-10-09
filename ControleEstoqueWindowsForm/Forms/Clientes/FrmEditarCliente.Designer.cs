@@ -90,6 +90,7 @@
             this.txtEmail.Name = "txtEmail";
             this.txtEmail.Size = new System.Drawing.Size(360, 30);
             this.txtEmail.TabIndex = 7;
+            this.txtEmail.Leave += new System.EventHandler(this.txtEmail_Leave);
             // 
             // label5
             // 
@@ -104,10 +105,11 @@
             // 
             this.txtTelefone.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtTelefone.Location = new System.Drawing.Point(210, 110);
-            this.txtTelefone.MaxLength = 11;
+            this.txtTelefone.MaxLength = 15;
             this.txtTelefone.Name = "txtTelefone";
             this.txtTelefone.Size = new System.Drawing.Size(170, 30);
             this.txtTelefone.TabIndex = 5;
+            this.txtTelefone.Leave += new System.EventHandler(this.txtTelefone_Leave);
             // 
             // label4
             // 
@@ -126,6 +128,7 @@
             this.txtCpf.Name = "txtCpf";
             this.txtCpf.Size = new System.Drawing.Size(170, 30);
             this.txtCpf.TabIndex = 3;
+            this.txtCpf.Leave += new System.EventHandler(this.txtCpf_Leave);
             // 
             // label3
             // 
@@ -143,6 +146,7 @@
             this.txtNome.Name = "txtNome";
             this.txtNome.Size = new System.Drawing.Size(360, 30);
             this.txtNome.TabIndex = 1;
+            this.txtNome.Leave += new System.EventHandler(this.txtNome_Leave);
             // 
             // label2
             // 

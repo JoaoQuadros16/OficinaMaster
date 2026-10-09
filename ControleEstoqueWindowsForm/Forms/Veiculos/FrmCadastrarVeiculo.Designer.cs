@@ -119,6 +119,7 @@
             this.txtPlaca.Name = "txtPlaca";
             this.txtPlaca.Size = new System.Drawing.Size(150, 27);
             this.txtPlaca.TabIndex = 3;
+            this.txtPlaca.Leave += new System.EventHandler(this.txtPlaca_Leave);
             // 
             // lblPlaca
             // 
@@ -168,6 +169,7 @@
             this.txtAno.Name = "txtAno";
             this.txtAno.Size = new System.Drawing.Size(100, 27);
             this.txtAno.TabIndex = 9;
+            this.txtAno.Leave += new System.EventHandler(this.txtAno_Leave);
             // 
             // lblAno
             // 
