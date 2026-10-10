@@ -205,6 +205,7 @@
             this.cboCliente.Size = new System.Drawing.Size(330, 31);
             this.cboCliente.TabIndex = 5;
             this.cboCliente.SelectedIndexChanged += new System.EventHandler(this.cboCliente_SelectedIndexChanged);
+            this.cboCliente.SelectionChangeCommitted += new System.EventHandler(this.cboCliente_SelectionChangeCommitted);
             // 
             // lblVeiculo
             // 

@@ -19,7 +19,7 @@ namespace ControleEstoqueWindowsForm
         private int idCliente;
         private ClienteDAO clienteDAO = new ClienteDAO();
         private int? clienteIdPreSelecionado;
-        private VeiculoService veiculoService = new VeiculoService();
+        private List<Veiculo> todosVeiculos = new List<Veiculo>();
 
         // Nova OS
         public FrmOrdemServico()
@@ -37,27 +37,17 @@ namespace ControleEstoqueWindowsForm
             this.idCliente = idCliente;
         }
 
-        private void CarregarVeiculos()
+        private int? ObterClienteSelcionado()
         {
-            string mensagemErro;
-            List<Veiculo> todos = veiculoService.ListarVeiculo(out mensagemErro);
-
-            if (!string.IsNullOrEmpty(mensagemErro))
+            if (cboCliente.Items == null)
             {
-                MessageBox.Show("Erro ao carregar veículos: " + mensagemErro);
-                return;
+                MessageBox.Show("Selecione um veículo.");
+                return null;
             }
 
-            List<Veiculo> doCliente = todos.Where(v => v.ClienteId == idCliente).ToList();
-
-            dgv.DataSource = doCliente;
-
-            if (dgvVeiculos.Columns["ClienteId"] != null)
-                dgvVeiculos.Columns["ClienteId"].Visible = false;
-            if (dgvVeiculos.Columns["NomeCliente"] != null)
-                dgvVeiculos.Columns["NomeCliente"].Visible = false;
+            Cliente cliente = (Cliente)cboCliente.SelectedItem;
+            return cliente.Id;
         }
-
         private void FrmOrdemServico_Load(object sender, EventArgs e)
         {
             ClienteService clienteService = new ClienteService();
@@ -70,10 +60,43 @@ namespace ControleEstoqueWindowsForm
                 return;
             }
 
+            VeiculoService veiculoService = new VeiculoService();
+            todosVeiculos = veiculoService.ListarVeiculo(out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar veículos: " + mensagemErro);
+                return;
+            }
+
+            cboVeiculo.DisplayMember = "Modelo";
+            cboVeiculo.ValueMember = "Id";
+            cboVeiculo.DataSource = null;
+            cboVeiculo.Enabled = false; // só libera depois de escolher o cliente
+
             cboCliente.DisplayMember = "NomeExibicao";
             cboCliente.ValueMember = "Id";
             cboCliente.DataSource = clientes;
             cboCliente.SelectedIndex = -1;
+        }
+        private void cboCliente_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            int? clienteId = ObterClienteSelcionado();
+
+            if (clienteId == null)
+            {
+                cboVeiculo.DataSource = null;
+                cboVeiculo.Enabled = false;
+                return;
+            }
+
+            List<Veiculo> veiculosDoCliente = todosVeiculos
+                .Where(v => v.ClienteId == clienteId.Value)
+                .ToList();
+
+            cboVeiculo.DataSource = veiculosDoCliente;
+            cboVeiculo.SelectedIndex = -1;
+            cboVeiculo.Enabled = true;
         }
 
         private void cboCliente_SelectedIndexChanged(object sender, EventArgs e)
