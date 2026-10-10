@@ -106,6 +106,33 @@ namespace ControleEstoqueWindowsForm
 
         private void btnSalvar_Click(object sender, EventArgs e)
         {
+            OrdemServico ordemServico = new OrdemServico();
+            ordemServico.ClienteId = ObterClienteSelcionado() ?? 0;
+            ordemServico.VeiculoId = cboVeiculo.SelectedValue != null ? (int)cboVeiculo.SelectedValue : 0;
+            ordemServico.DescricaoProblema = txtProblema.Text;
+            ordemServico.DataAbertura = DateTime.Now;
+            ordemServico.Status = "ABERTA";
+
+            string mensagemErro;
+
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            bool sucesso = ordemServicoService.CadastrarOS(ordemServico, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao cadastrar OS: " + mensagemErro);
+                return;
+            }
+
+            if (sucesso)
+            {
+                MessageBox.Show("Ordem de serviço cadastrada com sucesso!");
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show("Falha ao cadastrar ordem de serviço.");
+            }
         }
 
         // ---------------- Serviços ----------------
