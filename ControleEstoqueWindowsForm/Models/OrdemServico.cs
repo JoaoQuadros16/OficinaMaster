@@ -14,6 +14,9 @@ namespace ControleEstoqueWindowsForm.Models
 
         public int VeiculoId { get; set; }
 
+        public string ClienteNome { get; set; }
+        public string VeiculoDescricao { get; set; }
+
         public string DescricaoProblema { get; set; }
 
         public DateTime DataAbertura { get; set; }

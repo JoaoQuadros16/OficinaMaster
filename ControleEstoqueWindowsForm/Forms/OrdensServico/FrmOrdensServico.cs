@@ -1,4 +1,5 @@
-﻿using ControleEstoqueWindowsForm.Services;
+﻿using ControleEstoqueWindowsForm.Models;
+using ControleEstoqueWindowsForm.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,8 +24,30 @@ namespace ControleEstoqueWindowsForm
             dtpFim.Value = DateTime.Today;
         }
 
+        public void CarregarOrdens()
+        {
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            string mensagemErro;
+            List<OrdemServico> ordensServico = ordemServicoService.ListarOrdensServico(out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar ordens de serviço: " + mensagemErro);
+                return;
+            }
+
+            //melhora visualização da tabela
+            dgvOrdens.DataSource = ordensServico;
+            dgvOrdens.Columns["ClienteId"].Visible = false;
+            dgvOrdens.Columns["VeiculoId"].Visible = false;
+            dgvOrdens.Columns["ClienteNome"].HeaderText = "Cliente";
+            dgvOrdens.Columns["DescricaoProblema"].HeaderText = "Descrição";
+            dgvOrdens.Columns["VeiculoDescricao"].HeaderText = "Veículo";
+        }
+
         private void FrmOrdensServico_Load(object sender, EventArgs e)
         {
+            CarregarOrdens();
         }
 
         private void txtPesquisa_TextChanged(object sender, EventArgs e)

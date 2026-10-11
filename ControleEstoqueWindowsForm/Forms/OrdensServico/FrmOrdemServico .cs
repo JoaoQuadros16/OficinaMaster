@@ -17,7 +17,6 @@ namespace ControleEstoqueWindowsForm
     {
         private int _idOrdem = 0;
         private int idCliente;
-        private ClienteDAO clienteDAO = new ClienteDAO();
         private int? clienteIdPreSelecionado;
         private List<Veiculo> todosVeiculos = new List<Veiculo>();
 

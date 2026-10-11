@@ -15,7 +15,6 @@ namespace ControleEstoqueWindowsForm.DAO
         public bool CadastrarOS(OrdemServico ordemServico, out string mensagemErro)
         {
             mensagemErro = string.Empty;
-
             try
             {
                 using(SqlConnection conn = Conexao.ObterConexao())
@@ -51,6 +50,55 @@ namespace ControleEstoqueWindowsForm.DAO
                 mensagemErro = ex.Message;
                 return false;
             }
+        }
+        public List<OrdemServico> ListarOrdensServico(out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            List<OrdemServico> ordensServico = new List<OrdemServico>();
+            try
+            {
+                using (SqlConnection conn = Conexao.ObterConexao())
+                {
+                    conn.Open();
+                    string sql = @"SELECT os.Id,
+                                  os.ClienteId,
+                                  os.VeiculoId,
+                                  c.Nome AS Cliente,
+                                  v.Modelo + ' - ' + v.Placa AS Veiculo,
+                                  os.DataAbertura,
+                                  os.DataFinalizacao,
+                                  os.Descricao,
+                                  os.Status
+                           FROM OrdensServico os
+                           INNER JOIN Clientes c ON c.Id = os.ClienteId
+                           INNER JOIN Veiculos v ON v.Id = os.VeiculoId";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            OrdemServico ordemServico = new OrdemServico
+                            {
+                                Id = reader.GetInt32(0),
+                                ClienteId = reader.GetInt32(1),
+                                VeiculoId = reader.GetInt32(2),
+                                ClienteNome = reader.GetString(3),
+                                VeiculoDescricao = reader.GetString(4),
+                                DataAbertura = reader.GetDateTime(5),
+                                DataFinalizacao = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6),
+                                DescricaoProblema = reader.GetString(7),
+                                Status = reader.GetString(8)
+                            };
+                            ordensServico.Add(ordemServico);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+            }
+            return ordensServico;
         }
     }
 }

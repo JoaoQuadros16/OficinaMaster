@@ -11,10 +11,15 @@ namespace ControleEstoqueWindowsForm.Services
 {
     public class OrdemServicoService
     {
+        OrdemServicoDAO ordemServicoDAO = new OrdemServicoDAO();
         public bool CadastrarOS(OrdemServico ordemServico, out string mensagemErro)
         {
-            OrdemServicoDAO ordemServicoDAO = new OrdemServicoDAO();
+            
             return ordemServicoDAO.CadastrarOS(ordemServico, out mensagemErro);
+        }
+        public List<OrdemServico> ListarOrdensServico(out string mensagemErro) 
+        {
+            return ordemServicoDAO.ListarOrdensServico(out mensagemErro);
         }
     }
 }
