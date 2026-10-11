@@ -78,6 +78,18 @@ namespace ControleEstoqueWindowsForm
 
         private void btnAbrirOS_Click(object sender, EventArgs e)
         {
+            // TODO: abrir tela de edição para a OS selecionado no dataGridView1
+            if (dgvOrdens.CurrentRow == null)
+            {
+                MessageBox.Show("Selecione uma ordem de serviço para abrir.");
+                return;
+            }
+
+            OrdemServico ordem = (OrdemServico)dgvOrdens.CurrentRow.DataBoundItem;
+
+            FrmOrdemServico tela = new FrmOrdemServico(ordem.Id, ordem.ClienteId);
+            tela.ShowDialog();
+            CarregarOrdens();
         }
 
         private void btnRelatorio_Click(object sender, EventArgs e)

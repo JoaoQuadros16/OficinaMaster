@@ -21,5 +21,13 @@ namespace ControleEstoqueWindowsForm.Services
         {
             return ordemServicoDAO.ListarOrdensServico(out mensagemErro);
         }
+        public OrdemServico ObterObterPorId(int id, out string mensagemErro)
+        {
+            return ordemServicoDAO.ObterPorId(id, out mensagemErro);
+        }
+        public bool AtualizarOS(OrdemServico ordemServico, out string mensagemErro)
+        {
+            return ordemServicoDAO.AtualizarOS(ordemServico, out mensagemErro);
+        }
     }
 }

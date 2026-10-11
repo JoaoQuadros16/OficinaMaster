@@ -100,5 +100,74 @@ namespace ControleEstoqueWindowsForm.DAO
             }
             return ordensServico;
         }
+        public OrdemServico ObterPorId(int id, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            OrdemServico ordem = null;
+            try
+            {
+                using (SqlConnection conn = Conexao.ObterConexao())
+                {
+                    conn.Open();
+                    string sql = @"SELECT Id, ClienteId, VeiculoId, DataAbertura, DataFinalizacao, Descricao, Status
+                           FROM OrdensServico
+                           WHERE Id = @Id";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@Id", id);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            ordem = new OrdemServico
+                            {
+                                Id = reader.GetInt32(0),
+                                ClienteId = reader.GetInt32(1),
+                                VeiculoId = reader.GetInt32(2),
+                                DataAbertura = reader.GetDateTime(3),
+                                DataFinalizacao = reader.IsDBNull(4) ? (DateTime?)null : reader.GetDateTime(4),
+                                DescricaoProblema = reader.GetString(5),
+                                Status = reader.GetString(6)
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+            }
+            return ordem;
+        }
+
+        public bool AtualizarOS(OrdemServico ordem, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            try
+            {
+                using (SqlConnection conn = Conexao.ObterConexao())
+                {
+                    conn.Open();
+                    string sql = @"UPDATE OrdensServico
+                           SET ClienteId = @ClienteId,
+                               VeiculoId = @VeiculoId,
+                               Descricao = @Descricao
+                           WHERE Id = @Id";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@ClienteId", ordem.ClienteId);
+                    cmd.Parameters.AddWithValue("@VeiculoId", ordem.VeiculoId);
+                    cmd.Parameters.AddWithValue("@Descricao", ordem.DescricaoProblema);
+                    cmd.Parameters.AddWithValue("@Id", ordem.Id);
+
+                    int linhas = cmd.ExecuteNonQuery();
+                    return linhas > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+                return false;
+            }
+        }
     }
 }

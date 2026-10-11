@@ -15,7 +15,7 @@ namespace ControleEstoqueWindowsForm
 {
     public partial class FrmOrdemServico : Form
     {
-        private int _idOrdem = 0;
+        private int _idOrdem;
         private int idCliente;
         private int? clienteIdPreSelecionado;
         private List<Veiculo> todosVeiculos = new List<Veiculo>();
@@ -32,8 +32,17 @@ namespace ControleEstoqueWindowsForm
             InitializeComponent();
             _idOrdem = idOrdem;
             idCliente = _idCliente;
-            this.clienteIdPreSelecionado = clienteIdPreSelecionado;
-            this.idCliente = idCliente;
+        }
+
+        private void CarregarVeiculosDoCliente(int clienteId)
+        {
+            List<Veiculo> veiculosDoCliente = todosVeiculos
+                .Where(v => v.ClienteId == clienteId)
+                .ToList();
+
+            cboVeiculo.DataSource = veiculosDoCliente;
+            cboVeiculo.SelectedIndex = -1;
+            cboVeiculo.Enabled = true;
         }
 
         private int? ObterClienteSelcionado()
@@ -77,6 +86,40 @@ namespace ControleEstoqueWindowsForm
             cboCliente.ValueMember = "Id";
             cboCliente.DataSource = clientes;
             cboCliente.SelectedIndex = -1;
+
+            // OS nova: não tem o que preencher
+            if (_idOrdem == 0)
+            {
+                return;
+            }
+
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            OrdemServico ordem = ordemServicoService.ObterObterPorId(_idOrdem, out mensagemErro);
+
+            if (ordem == null)
+            {
+                MessageBox.Show("Ordem de serviço não encontrada. " + mensagemErro);
+                Close();
+                return;
+            }
+
+            cboCliente.SelectedValue = ordem.ClienteId;
+            CarregarVeiculosDoCliente(ordem.ClienteId);
+            cboVeiculo.SelectedValue = ordem.VeiculoId;
+            txtProblema.Text = ordem.DescricaoProblema;
+            txtNumero.Text = ordem.Id.ToString("D6");
+
+            Text = "Ordem de Serviço Nº " + ordem.Id + " - " + ordem.Status;
+
+            cboCliente.SelectedValue = ordem.ClienteId;
+            CarregarVeiculosDoCliente(ordem.ClienteId);
+            cboVeiculo.SelectedValue = ordem.VeiculoId;
+            txtProblema.Text = ordem.DescricaoProblema;
+
+            cboCliente.Enabled = false;
+            cboVeiculo.Enabled = false;
+
+
         }
         private void cboCliente_SelectionChangeCommitted(object sender, EventArgs e)
         {
@@ -88,6 +131,8 @@ namespace ControleEstoqueWindowsForm
                 cboVeiculo.Enabled = false;
                 return;
             }
+
+            CarregarVeiculosDoCliente(clienteId.Value);
 
             List<Veiculo> veiculosDoCliente = todosVeiculos
                 .Where(v => v.ClienteId == clienteId.Value)
@@ -105,32 +150,55 @@ namespace ControleEstoqueWindowsForm
 
         private void btnSalvar_Click(object sender, EventArgs e)
         {
-            OrdemServico ordemServico = new OrdemServico();
-            ordemServico.ClienteId = ObterClienteSelcionado() ?? 0;
-            ordemServico.VeiculoId = cboVeiculo.SelectedValue != null ? (int)cboVeiculo.SelectedValue : 0;
-            ordemServico.DescricaoProblema = txtProblema.Text;
-            ordemServico.DataAbertura = DateTime.Now;
-            ordemServico.Status = "ABERTA";
+            int? clienteId = ObterClienteSelcionado();
+            if (clienteId == null)
+            {
+                MessageBox.Show("Selecione um cliente.");
+                return;
+            }
 
-            string mensagemErro;
+            if (cboVeiculo.SelectedValue == null)
+            {
+                MessageBox.Show("Selecione um veículo.");
+                return;
+            }
+
+            OrdemServico ordemServico = new OrdemServico();
+            ordemServico.ClienteId = clienteId.Value;
+            ordemServico.VeiculoId = (int)cboVeiculo.SelectedValue;
+            ordemServico.DescricaoProblema = txtProblema.Text;
+            txtNumero.Text = ordemServico.Id.ToString("D6");
 
             OrdemServicoService ordemServicoService = new OrdemServicoService();
-            bool sucesso = ordemServicoService.CadastrarOS(ordemServico, out mensagemErro);
+            string mensagemErro;
+            bool sucesso;
+
+            if (_idOrdem == 0)
+            {
+                ordemServico.DataAbertura = DateTime.Now;
+                ordemServico.Status = "ABERTA";
+                sucesso = ordemServicoService.CadastrarOS(ordemServico, out mensagemErro);
+            }
+            else
+            {
+                ordemServico.Id = _idOrdem;
+                sucesso = ordemServicoService.AtualizarOS(ordemServico, out mensagemErro);
+            }
 
             if (!string.IsNullOrEmpty(mensagemErro))
             {
-                MessageBox.Show("Erro ao cadastrar OS: " + mensagemErro);
+                MessageBox.Show("Erro ao salvar OS: " + mensagemErro);
                 return;
             }
 
             if (sucesso)
             {
-                MessageBox.Show("Ordem de serviço cadastrada com sucesso!");
+                MessageBox.Show("Ordem de serviço salva com sucesso!");
                 this.Close();
             }
             else
             {
-                MessageBox.Show("Falha ao cadastrar ordem de serviço.");
+                MessageBox.Show("Falha ao salvar ordem de serviço.");
             }
         }
 
