@@ -68,6 +68,7 @@ namespace ControleEstoqueWindowsForm
 
         private void dgvOrdens_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            EditarOS();
         }
 
         private void btnNovaOS_Click(object sender, EventArgs e)
@@ -77,6 +78,10 @@ namespace ControleEstoqueWindowsForm
         }
 
         private void btnAbrirOS_Click(object sender, EventArgs e)
+        {
+            EditarOS();
+        }
+        private void EditarOS()
         {
             // TODO: abrir tela de edição para a OS selecionado no dataGridView1
             if (dgvOrdens.CurrentRow == null)
@@ -94,6 +99,7 @@ namespace ControleEstoqueWindowsForm
 
         private void btnRelatorio_Click(object sender, EventArgs e)
         {
+            
         }
 
         private void btnAtualizar_Click(object sender, EventArgs e)

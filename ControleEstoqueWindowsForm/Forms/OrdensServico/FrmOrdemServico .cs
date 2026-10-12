@@ -59,6 +59,7 @@ namespace ControleEstoqueWindowsForm
             cboVeiculo.ValueMember = "Id";
             cboVeiculo.DataSource = null;
             cboVeiculo.Enabled = false; // só libera depois de escolher o cliente
+            grpServicos.Enabled = false;
 
             cboCliente.DisplayMember = "NomeExibicao";
             cboCliente.ValueMember = "Id";
