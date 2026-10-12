@@ -79,6 +79,7 @@ namespace ControleEstoqueWindowsForm
         {
             FrmOrdemServico tela = new FrmOrdemServico();
             tela.ShowDialog(this);
+            CarregarOrdens();
         }
 
         private void btnAbrirOS_Click(object sender, EventArgs e)
