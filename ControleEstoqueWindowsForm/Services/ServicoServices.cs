@@ -24,7 +24,6 @@ namespace ControleEstoqueWindowsForm.Services
             }
             return true;
         }
-
         public bool CadastrarServico(Servico servico, out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -42,7 +41,6 @@ namespace ControleEstoqueWindowsForm.Services
             mensagemErro = string.Empty;
             return servicoDAO.ListarServicos(out mensagemErro);
         }
-
         public List<Servico> ListarServicosAtivoseInativos(out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -52,7 +50,6 @@ namespace ControleEstoqueWindowsForm.Services
         {
             return servicoDAO.PesquisarServicos(pesquisar,mostrarInativo, out mensagemErro);
         }
-
         public bool EditarServico(Servico servico, out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -62,6 +59,12 @@ namespace ControleEstoqueWindowsForm.Services
             }
             bool sucesso = servicoDAO.EditarServico(servico, out mensagemErro);
             return sucesso;
+        }
+
+        public int BuscarPorId(int id, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            return servicoDAO.BuscarPorId(id, out mensagemErro);
         }
     }
 }

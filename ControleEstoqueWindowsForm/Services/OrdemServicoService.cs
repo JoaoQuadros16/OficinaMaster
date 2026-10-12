@@ -12,9 +12,8 @@ namespace ControleEstoqueWindowsForm.Services
     public class OrdemServicoService
     {
         OrdemServicoDAO ordemServicoDAO = new OrdemServicoDAO();
-        public bool CadastrarOS(OrdemServico ordemServico, out string mensagemErro)
-        {
-            
+        public int CadastrarOS(OrdemServico ordemServico, out string mensagemErro)
+        {  
             return ordemServicoDAO.CadastrarOS(ordemServico, out mensagemErro);
         }
         public List<OrdemServico> ListarOrdensServico(out string mensagemErro) 
@@ -25,9 +24,19 @@ namespace ControleEstoqueWindowsForm.Services
         {
             return ordemServicoDAO.ObterPorId(id, out mensagemErro);
         }
-        public bool AtualizarOS(OrdemServico ordemServico, out string mensagemErro)
+        public bool AtualizarOS(OrdemServico ordem, List<OrdemServicoItemServico> servicos, out string mensagemErro)
         {
-            return ordemServicoDAO.AtualizarOS(ordemServico, out mensagemErro);
+            return ordemServicoDAO.AtualizarOS(ordem, servicos, out mensagemErro);
+        }
+
+        public bool CadastrarServicoOrdem(OrdemServicoItemServico item, out string mensagemErro)
+        {
+            return ordemServicoDAO.CadastrarServicoOrdem(item, out mensagemErro);
+        }
+
+        public List<OrdemServicoItemServico> ListarServicosDaOS(int idOrdem, out string mensagemErro)
+        {
+            return ordemServicoDAO.ListarServicosDaOS(idOrdem, out mensagemErro);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ControleEstoqueWindowsForm.DAO
     {
         private Conexao Conexao = new Conexao();
 
-        public bool CadastrarOS(OrdemServico ordemServico, out string mensagemErro)
+        public int CadastrarOS(OrdemServico ordemServico, out string mensagemErro)
         {
             mensagemErro = string.Empty;
             try
@@ -21,9 +21,10 @@ namespace ControleEstoqueWindowsForm.DAO
                 {
                     conn.Open();
                     string sql = @"INSERT INTO OrdensServico
-                                   (ClienteId, VeiculoId, DataAbertura, DataFinalizacao, Descricao, Status)
-                                   VALUES
-                                   (@ClienteId, @VeiculoId, @DataAbertura, @DataFinalizacao, @Descricao, @Status)";
+                               (ClienteId, VeiculoId, DataAbertura, DataFinalizacao, Descricao, Status)
+                               OUTPUT INSERTED.Id
+                               VALUES
+                               (@ClienteId, @VeiculoId, @DataAbertura, @DataFinalizacao, @Descricao, @Status)";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
 
@@ -41,14 +42,14 @@ namespace ControleEstoqueWindowsForm.DAO
                     cmd.Parameters.AddWithValue("@Descricao", ordemServico.DescricaoProblema);
                     cmd.Parameters.AddWithValue("@Status", ordemServico.Status);
 
-                    cmd.ExecuteNonQuery();
+                    int novoId = Convert.ToInt32(cmd.ExecuteScalar());
+                    return novoId;
                 }
-                return true;
             }
             catch (Exception ex)
             {
                 mensagemErro = ex.Message;
-                return false;
+                return 0;
             }
         }
         public List<OrdemServico> ListarOrdensServico(out string mensagemErro)
@@ -139,8 +140,56 @@ namespace ControleEstoqueWindowsForm.DAO
             }
             return ordem;
         }
+        public bool AtualizarOS(OrdemServico ordem, List<OrdemServicoItemServico> servicos, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
 
-        public bool AtualizarOS(OrdemServico ordem, out string mensagemErro)
+            using (SqlConnection conn = Conexao.ObterConexao())
+            {
+                conn.Open();
+                SqlTransaction transacao = conn.BeginTransaction();
+
+                try
+                {
+                    // 1. atualiza a OS
+                    string sqlOS = @"UPDATE OrdensServico
+                             SET Descricao = @Descricao
+                             WHERE Id = @Id";
+                    SqlCommand cmdOS = new SqlCommand(sqlOS, conn, transacao);
+                    cmdOS.Parameters.AddWithValue("@Descricao", ordem.DescricaoProblema);
+                    cmdOS.Parameters.AddWithValue("@Id", ordem.Id);
+                    cmdOS.ExecuteNonQuery();
+
+                    // 2. apaga os serviços antigos
+                    string sqlDelete = "DELETE FROM OrdemServicoServicos WHERE OrdemServicoId = @Id";
+                    SqlCommand cmdDelete = new SqlCommand(sqlDelete, conn, transacao);
+                    cmdDelete.Parameters.AddWithValue("@Id", ordem.Id);
+                    cmdDelete.ExecuteNonQuery();
+
+                    // 3. grava os serviços da lista
+                    string sqlInsert = @"INSERT INTO OrdemServicoServicos (OrdemServicoId, ServicoId, Valor)
+                                 VALUES (@OrdemServicoId, @ServicoId, @Valor)";
+                    foreach (OrdemServicoItemServico item in servicos)
+                    {
+                        SqlCommand cmdItem = new SqlCommand(sqlInsert, conn, transacao);
+                        cmdItem.Parameters.AddWithValue("@OrdemServicoId", ordem.Id);
+                        cmdItem.Parameters.AddWithValue("@ServicoId", item.ServicoId);
+                        cmdItem.Parameters.AddWithValue("@Valor", item.Valor);
+                        cmdItem.ExecuteNonQuery();
+                    }
+
+                    transacao.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    transacao.Rollback();
+                    mensagemErro = ex.Message;
+                    return false;
+                }
+            }
+        }
+        public bool CadastrarServicoOrdem(OrdemServicoItemServico item, out string mensagemErro)
         {
             mensagemErro = string.Empty;
             try
@@ -148,26 +197,69 @@ namespace ControleEstoqueWindowsForm.DAO
                 using (SqlConnection conn = Conexao.ObterConexao())
                 {
                     conn.Open();
-                    string sql = @"UPDATE OrdensServico
-                           SET ClienteId = @ClienteId,
-                               VeiculoId = @VeiculoId,
-                               Descricao = @Descricao
-                           WHERE Id = @Id";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@ClienteId", ordem.ClienteId);
-                    cmd.Parameters.AddWithValue("@VeiculoId", ordem.VeiculoId);
-                    cmd.Parameters.AddWithValue("@Descricao", ordem.DescricaoProblema);
-                    cmd.Parameters.AddWithValue("@Id", ordem.Id);
+                    string sql = @"INSERT INTO OrdemServicoServicos (OrdemServicoId, ServicoId, Valor)
+                                   VALUES (@OrdemServicoId, @ServicoId, @Valor);
+                                   SELECT SCOPE_IDENTITY();";
 
-                    int linhas = cmd.ExecuteNonQuery();
-                    return linhas > 0;
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+
+                    cmd.Parameters.AddWithValue("@OrdemServicoId", item.OrdemServicoId);
+                    cmd.Parameters.AddWithValue("@ServicoId", item.ServicoId);
+                    cmd.Parameters.AddWithValue("@Valor", item.Valor);
+
+                    cmd.ExecuteNonQuery();
+                    
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 mensagemErro = ex.Message;
                 return false;
             }
+        }
+
+        public List<OrdemServicoItemServico> ListarServicosDaOS(int idOrdem, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            List<OrdemServicoItemServico> itens = new List<OrdemServicoItemServico>();
+            try
+            {
+                using (SqlConnection conn = Conexao.ObterConexao())
+                {
+                    conn.Open();
+                    string sql = @"SELECT oss.Id,
+                                  oss.OrdemServicoId,
+                                  oss.ServicoId,
+                                  s.Descricao,
+                                  oss.Valor
+                           FROM OrdemServicoServicos oss
+                           INNER JOIN servicos s ON s.Id = oss.ServicoId
+                           WHERE oss.OrdemServicoId = @IdOrdem";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@IdOrdem", idOrdem);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            OrdemServicoItemServico item = new OrdemServicoItemServico();
+                            item.Id = reader.GetInt32(0);
+                            item.OrdemServicoId = reader.GetInt32(1);
+                            item.ServicoId = reader.GetInt32(2);
+                            item.Descricao = reader.GetString(3);
+                            item.Valor = reader.GetDecimal(4);
+                            itens.Add(item);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+            }
+            return itens;
         }
     }
 }

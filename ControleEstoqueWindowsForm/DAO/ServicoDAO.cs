@@ -74,7 +74,6 @@ namespace ControleEstoqueWindowsForm.DAO
                 return servicos;
             }
         }
-
         public List<Servico> ListarServicosAtivoseInativos(out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -182,6 +181,32 @@ namespace ControleEstoqueWindowsForm.DAO
                 mensagemErro = ex.Message;
                 return false;
             }
+        }
+
+        public int BuscarPorId(int id, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            int servicoId = 0;
+            try
+            {
+                using (SqlConnection conn = conexao.ObterConexao())
+                {
+                    conn.Open();
+                    string sql = @"SELECT Id FROM Servicos WHERE Id = @id";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null)
+                    {
+                        servicoId = Convert.ToInt32(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+            }
+            return servicoId;
         }
     }
 }

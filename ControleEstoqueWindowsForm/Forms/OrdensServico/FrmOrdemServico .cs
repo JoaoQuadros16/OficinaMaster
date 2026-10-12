@@ -19,6 +19,7 @@ namespace ControleEstoqueWindowsForm
         private int idCliente;
         private int? clienteIdPreSelecionado;
         private List<Veiculo> todosVeiculos = new List<Veiculo>();
+        private List<OrdemServicoItemServico> servicosDaOS = new List<OrdemServicoItemServico>();
 
         // Nova OS
         public FrmOrdemServico()
@@ -103,6 +104,9 @@ namespace ControleEstoqueWindowsForm
                 return;
             }
 
+            //SERVIÇO
+            ListaServicos();
+
             cboCliente.SelectedValue = ordem.ClienteId;
             CarregarVeiculosDoCliente(ordem.ClienteId);
             cboVeiculo.SelectedValue = ordem.VeiculoId;
@@ -119,6 +123,14 @@ namespace ControleEstoqueWindowsForm
             cboCliente.Enabled = false;
             cboVeiculo.Enabled = false;
 
+            servicosDaOS = ordemServicoService.ListarServicosDaOS(_idOrdem, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar serviços da OS: " + mensagemErro);
+            }
+
+            AtualizarGridServicos();
 
         }
         private void cboCliente_SelectionChangeCommitted(object sender, EventArgs e)
@@ -167,53 +179,155 @@ namespace ControleEstoqueWindowsForm
             ordemServico.ClienteId = clienteId.Value;
             ordemServico.VeiculoId = (int)cboVeiculo.SelectedValue;
             ordemServico.DescricaoProblema = txtProblema.Text;
-            txtNumero.Text = ordemServico.Id.ToString("D6");
 
             OrdemServicoService ordemServicoService = new OrdemServicoService();
             string mensagemErro;
-            bool sucesso;
 
             if (_idOrdem == 0)
             {
                 ordemServico.DataAbertura = DateTime.Now;
                 ordemServico.Status = "ABERTA";
-                sucesso = ordemServicoService.CadastrarOS(ordemServico, out mensagemErro);
+
+                int novoId = ordemServicoService.CadastrarOS(ordemServico, out mensagemErro);
+                if (novoId == 0)
+                {
+                    MessageBox.Show("Falha ao salvar ordem de serviço: " + mensagemErro);
+                    return;
+                }
+
+                _idOrdem = novoId;
+                txtNumero.Text = novoId.ToString("D6");
+                txtDataAbertura.Text = ordemServico.DataAbertura.ToString("dd/MM/yyyy HH:mm");
+                cboCliente.Enabled = false;
+                cboVeiculo.Enabled = false;
+
+                ListaServicos();
+                grpServicos.Enabled = true;
+
+                MessageBox.Show("OS Nº " + novoId + " criada. Agora adicione os serviços.");
             }
             else
             {
                 ordemServico.Id = _idOrdem;
-                sucesso = ordemServicoService.AtualizarOS(ordemServico, out mensagemErro);
-            }
+                bool sucesso = ordemServicoService.AtualizarOS(ordemServico, servicosDaOS, out mensagemErro);
 
-            if (!string.IsNullOrEmpty(mensagemErro))
-            {
-                MessageBox.Show("Erro ao salvar OS: " + mensagemErro);
-                return;
-            }
-
-            if (sucesso)
-            {
-                MessageBox.Show("Ordem de serviço salva com sucesso!");
-                this.Close();
-            }
-            else
-            {
-                MessageBox.Show("Falha ao salvar ordem de serviço.");
+                if (sucesso)
+                {
+                    MessageBox.Show("Ordem de serviço salva com sucesso!");
+                }
+                else
+                {
+                    MessageBox.Show("Falha ao salvar ordem de serviço: " + mensagemErro);
+                }
             }
         }
 
         // ---------------- Serviços ----------------
+        private void ListaServicos()
+        {
+            ServicoServices servicoServices = new ServicoServices();
+            string mensagemErro; 
+            List<Servico> servicos = servicoServices.ListarServicos(out mensagemErro);
 
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar serviços: " + mensagemErro);
+                return;
+            }
+            cboServico.DisplayMember = "Descricao";
+            cboServico.ValueMember = "Id";
+            cboServico.DataSource = servicos;
+            cboServico.SelectedIndex = -1;
+            
+        }
+        private void AtualizarGridServicos()
+        {
+            dgvServicos.DataSource = null;
+            dgvServicos.DataSource = servicosDaOS;
+
+            dgvServicos.Columns["Id"].Visible = false;
+            dgvServicos.Columns["OrdemServicoId"].Visible = false;
+            dgvServicos.Columns["ServicoId"].Visible = false;
+            dgvServicos.Columns["Descricao"].HeaderText = "Serviço";
+            dgvServicos.Columns["Valor"].DefaultCellStyle.Format = "N2";
+
+            decimal subtotal = 0;
+            foreach (OrdemServicoItemServico item in servicosDaOS)
+            {
+                subtotal = subtotal + item.Valor;
+            }
+            lblSubtotalServicos.Text = "Subtotal: R$ " + subtotal.ToString("N2");
+        }
+        private Servico ServicoSelecionado()
+        {
+            if (cboServico.SelectedItem == null)
+            {
+                return null;
+            }
+            return (Servico)cboServico.SelectedItem;
+        }
         private void cboServico_SelectedIndexChanged(object sender, EventArgs e)
         {
+        }
+        private void cboServico_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            if (cboServico.SelectedItem == null)
+            {
+                txtValorServico.Clear();
+                return;
+            }
+
+            Servico servico = (Servico)cboServico.SelectedItem;
+            txtValorServico.Text = servico.Valor.ToString("N2");
         }
 
         private void btnAdicionarServico_Click(object sender, EventArgs e)
         {
+            Servico servico  = ServicoSelecionado();
+            if (servico == null)
+            {
+                MessageBox.Show("Selecione um serviço.");
+                return;
+            }
+            decimal valor;
+            if (!decimal.TryParse(txtValorServico.Text, out valor) || valor <= 0)
+            {
+                MessageBox.Show("Informe um valor válido, maior que zero.");
+                txtValorServico.Focus();
+                return;
+            }
+
+            OrdemServicoItemServico item = new OrdemServicoItemServico();
+            item.OrdemServicoId = _idOrdem;
+            item.ServicoId = servico.Id;
+            item.Valor = valor;
+
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            string mensagemErro;
+            item.OrdemServicoId = _idOrdem;
+            item.ServicoId = servico.Id;
+            item.Descricao = servico.Descricao;
+            item.Valor = valor;
+
+            servicosDaOS.Add(item);
+            AtualizarGridServicos();
+
+            cboServico.SelectedIndex = -1;
+            txtValorServico.Clear();
+
         }
 
         private void btnRemoverServico_Click(object sender, EventArgs e)
         {
+            if (dgvServicos.CurrentRow == null)
+            {
+                MessageBox.Show("Selecione um serviço para remover.");
+                return;
+            }
+
+            OrdemServicoItemServico item = (OrdemServicoItemServico)dgvServicos.CurrentRow.DataBoundItem;
+            servicosDaOS.Remove(item);
+            AtualizarGridServicos();
         }
 
         // ---------------- Peças ----------------
