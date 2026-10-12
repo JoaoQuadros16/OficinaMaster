@@ -34,30 +34,7 @@ namespace ControleEstoqueWindowsForm
             _idOrdem = idOrdem;
             idCliente = _idCliente;
         }
-
-        private void CarregarVeiculosDoCliente(int clienteId)
-        {
-            List<Veiculo> veiculosDoCliente = todosVeiculos
-                .Where(v => v.ClienteId == clienteId)
-                .ToList();
-
-            cboVeiculo.DataSource = veiculosDoCliente;
-            cboVeiculo.SelectedIndex = -1;
-            cboVeiculo.Enabled = true;
-        }
-
-        private int? ObterClienteSelcionado()
-        {
-            if (cboCliente.Items == null)
-            {
-                MessageBox.Show("Selecione um veículo.");
-                return null;
-            }
-
-            Cliente cliente = (Cliente)cboCliente.SelectedItem;
-            return cliente.Id;
-        }
-        private void FrmOrdemServico_Load(object sender, EventArgs e)
+        public void CarregaInformações()
         {
             ClienteService clienteService = new ClienteService();
             string mensagemErro;
@@ -131,7 +108,33 @@ namespace ControleEstoqueWindowsForm
             }
 
             AtualizarGridServicos();
+        }
 
+        private void CarregarVeiculosDoCliente(int clienteId)
+        {
+            List<Veiculo> veiculosDoCliente = todosVeiculos
+                .Where(v => v.ClienteId == clienteId)
+                .ToList();
+
+            cboVeiculo.DataSource = veiculosDoCliente;
+            cboVeiculo.SelectedIndex = -1;
+            cboVeiculo.Enabled = true;
+        }
+
+        private int? ObterClienteSelcionado()
+        {
+            if (cboCliente.Items == null)
+            {
+                MessageBox.Show("Selecione um veículo.");
+                return null;
+            }
+
+            Cliente cliente = (Cliente)cboCliente.SelectedItem;
+            return cliente.Id;
+        }
+        private void FrmOrdemServico_Load(object sender, EventArgs e)
+        {
+            CarregaInformações();
         }
         private void cboCliente_SelectionChangeCommitted(object sender, EventArgs e)
         {

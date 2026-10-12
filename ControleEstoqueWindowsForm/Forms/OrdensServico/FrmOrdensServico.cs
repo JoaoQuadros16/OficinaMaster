@@ -98,6 +98,7 @@ namespace ControleEstoqueWindowsForm
 
         private void btnAtualizar_Click(object sender, EventArgs e)
         {
+            CarregarOrdens();
         }
 
         private void btnVoltar_Click(object sender, EventArgs e)
