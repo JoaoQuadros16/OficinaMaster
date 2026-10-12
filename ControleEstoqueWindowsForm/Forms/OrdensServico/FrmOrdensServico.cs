@@ -68,6 +68,10 @@ namespace ControleEstoqueWindowsForm
 
         private void dgvOrdens_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
             EditarOS();
         }
 

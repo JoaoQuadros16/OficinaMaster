@@ -59,7 +59,6 @@ namespace ControleEstoqueWindowsForm
             cboVeiculo.ValueMember = "Id";
             cboVeiculo.DataSource = null;
             cboVeiculo.Enabled = false; // só libera depois de escolher o cliente
-            grpServicos.Enabled = false;
 
             cboCliente.DisplayMember = "NomeExibicao";
             cboCliente.ValueMember = "Id";
@@ -69,6 +68,7 @@ namespace ControleEstoqueWindowsForm
             // OS nova: não tem o que preencher
             if (_idOrdem == 0)
             {
+                grpServicos.Enabled = false;
                 return;
             }
 
@@ -124,9 +124,8 @@ namespace ControleEstoqueWindowsForm
 
         private int? ObterClienteSelcionado()
         {
-            if (cboCliente.Items == null)
+            if (cboCliente.SelectedItem == null)
             {
-                MessageBox.Show("Selecione um veículo.");
                 return null;
             }
 
