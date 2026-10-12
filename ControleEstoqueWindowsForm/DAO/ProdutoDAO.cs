@@ -22,12 +22,14 @@ namespace ControleEstoqueWindowsForm
                 {
                     conn.Open();
 
-                    string sql = "INSERT INTO produto (nome, quantidade) VALUES (@nome, @quantidade)";
+                    string sql = "INSERT INTO produto (nome, quantidade,valor) " +
+                        "VALUES (@nome, @quantidade,@valor)";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
 
                     cmd.Parameters.AddWithValue("@nome", produto.Nome);
                     cmd.Parameters.AddWithValue("@quantidade", produto.Quantidade);
+                    cmd.Parameters.AddWithValue("@valor", produto.Valor);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -64,6 +66,7 @@ namespace ControleEstoqueWindowsForm
                             produto.Id = Convert.ToInt32(reader["id"]);
                             produto.Nome = reader["nome"].ToString();
                             produto.Quantidade = Convert.ToInt32(reader["quantidade"]);
+                            produto.Valor = Convert.ToDecimal(reader["valor"]);
 
                             produtos.Add(produto);
                         }
@@ -107,6 +110,7 @@ namespace ControleEstoqueWindowsForm
                                 Id = Convert.ToInt32(reader["id"]),
                                 Nome = reader["nome"].ToString(),
                                 Quantidade = Convert.ToInt32(reader["quantidade"]),
+                                Valor = Convert.ToDecimal(reader["valor"])
                             };
                             objetoProduto.Add(produto);
                         }
@@ -151,7 +155,7 @@ namespace ControleEstoqueWindowsForm
             }
         }
 
-        public bool AlterarNomeProduto(Produto produto, out string mensagemErro)
+        public bool AlterarProduto(Produto produto, out string mensagemErro)
         {
             mensagemErro = string.Empty;
 
@@ -162,13 +166,15 @@ namespace ControleEstoqueWindowsForm
                     conn.Open();
 
                     string sql = "UPDATE produto " +
-                                 "SET nome = @nome " +
+                                 "SET nome = @nome, " +
+                                 "    valor = @valor " +
                                  "WHERE id = @id";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
 
                     cmd.Parameters.AddWithValue("@nome", produto.Nome);
                     cmd.Parameters.AddWithValue("@id", produto.Id);
+                    cmd.Parameters.AddWithValue("@valor", produto.Valor);
 
                     cmd.ExecuteNonQuery();
                 }

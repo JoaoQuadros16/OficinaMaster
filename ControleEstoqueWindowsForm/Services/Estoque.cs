@@ -51,14 +51,14 @@ namespace ControleEstoqueWindowsForm
 
             return sucesso;
         }
-        public bool AlterarNomeProduto(Produto produto, out string mensagemErro)
+        public bool AlterarProduto(Produto produto, out string mensagemErro)
         {
             if (!Validador.CampoObrigatorio(produto.Nome, "Nome", out mensagemErro))
             {
                 return false;
             }
 
-            bool sucesso = dao.AlterarNomeProduto(produto, out mensagemErro);
+            bool sucesso = dao.AlterarProduto(produto, out mensagemErro);
 
             return sucesso;
         }

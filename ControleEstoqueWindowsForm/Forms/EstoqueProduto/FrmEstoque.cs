@@ -90,6 +90,7 @@ namespace ControleEstoqueWindowsForm
                 txtCodigo.Text = linha.Cells["Id"].Value.ToString();
                 txtNome.Text = linha.Cells["Nome"].Value.ToString();
                 txtSaldo.Text = linha.Cells["Quantidade"].Value.ToString();
+                txtValor.Text = linha.Cells["Valor"].Value.ToString();
 
                 ModoEdicao();
             }
@@ -157,6 +158,7 @@ namespace ControleEstoqueWindowsForm
                 }
             }
             produto.Quantidade = quantidade;
+            produto.Valor = decimal.Parse(txtValor.Text);
 
             string mensagemErro;
             bool sucesso = estoque.CadastrarProduto(produto, out mensagemErro);
@@ -178,9 +180,10 @@ namespace ControleEstoqueWindowsForm
             Produto produto = new Produto();
             produto.Id = int.Parse(txtCodigo.Text);   // preenchido pelo sistema, sempre numérico
             produto.Nome = txtNome.Text.Trim();
+            produto.Valor = decimal.Parse(txtValor.Text);
 
             string mensagemErro;
-            bool sucesso = estoque.AlterarNomeProduto(produto, out mensagemErro);
+            bool sucesso = estoque.AlterarProduto(produto, out mensagemErro);
 
             if (sucesso)
             {

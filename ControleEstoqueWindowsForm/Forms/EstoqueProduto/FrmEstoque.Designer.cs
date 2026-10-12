@@ -41,6 +41,8 @@
             this.txtNome = new System.Windows.Forms.TextBox();
             this.lblSaldo = new System.Windows.Forms.Label();
             this.txtSaldo = new System.Windows.Forms.TextBox();
+            this.lblValor = new System.Windows.Forms.Label();
+            this.txtValor = new System.Windows.Forms.TextBox();
             this.btnNovo = new System.Windows.Forms.Button();
             this.btnSalvar = new System.Windows.Forms.Button();
             this.grpMovimentacao = new System.Windows.Forms.GroupBox();
@@ -76,6 +78,7 @@
             this.lblTitulo.ForeColor = System.Drawing.Color.White;
             this.lblTitulo.Location = new System.Drawing.Point(20, 22);
             this.lblTitulo.Name = "lblTitulo";
+            this.lblTitulo.Size = new System.Drawing.Size(234, 32);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "📦 Estoque / Peças";
             // 
@@ -85,6 +88,7 @@
             this.lblPesquisa.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblPesquisa.Location = new System.Drawing.Point(30, 94);
             this.lblPesquisa.Name = "lblPesquisa";
+            this.lblPesquisa.Size = new System.Drawing.Size(55, 20);
             this.lblPesquisa.TabIndex = 1;
             this.lblPesquisa.Text = "Buscar:";
             // 
@@ -141,6 +145,8 @@
             this.grpDados.Controls.Add(this.txtNome);
             this.grpDados.Controls.Add(this.lblSaldo);
             this.grpDados.Controls.Add(this.txtSaldo);
+            this.grpDados.Controls.Add(this.lblValor);
+            this.grpDados.Controls.Add(this.txtValor);
             this.grpDados.Controls.Add(this.btnNovo);
             this.grpDados.Controls.Add(this.btnSalvar);
             this.grpDados.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -158,6 +164,7 @@
             this.lblModo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
             this.lblModo.Location = new System.Drawing.Point(20, 28);
             this.lblModo.Name = "lblModo";
+            this.lblModo.Size = new System.Drawing.Size(97, 20);
             this.lblModo.TabIndex = 0;
             this.lblModo.Text = "Novo produto";
             // 
@@ -166,18 +173,19 @@
             this.lblCodigo.AutoSize = true;
             this.lblCodigo.Location = new System.Drawing.Point(20, 58);
             this.lblCodigo.Name = "lblCodigo";
+            this.lblCodigo.Size = new System.Drawing.Size(61, 20);
             this.lblCodigo.TabIndex = 1;
             this.lblCodigo.Text = "Código:";
             // 
             // txtCodigo
             // 
+            this.txtCodigo.BackColor = System.Drawing.Color.WhiteSmoke;
             this.txtCodigo.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtCodigo.Location = new System.Drawing.Point(20, 80);
-            this.txtCodigo.BackColor = System.Drawing.Color.WhiteSmoke;
             this.txtCodigo.Name = "txtCodigo";
+            this.txtCodigo.ReadOnly = true;
             this.txtCodigo.Size = new System.Drawing.Size(90, 30);
             this.txtCodigo.TabIndex = 2;
-            this.txtCodigo.ReadOnly = true;
             this.txtCodigo.TabStop = false;
             // 
             // lblNome
@@ -185,6 +193,7 @@
             this.lblNome.AutoSize = true;
             this.lblNome.Location = new System.Drawing.Point(20, 120);
             this.lblNome.Name = "lblNome";
+            this.lblNome.Size = new System.Drawing.Size(53, 20);
             this.lblNome.TabIndex = 3;
             this.lblNome.Text = "Nome:";
             // 
@@ -202,8 +211,9 @@
             this.lblSaldo.AutoSize = true;
             this.lblSaldo.Location = new System.Drawing.Point(20, 182);
             this.lblSaldo.Name = "lblSaldo";
+            this.lblSaldo.Size = new System.Drawing.Size(90, 20);
             this.lblSaldo.TabIndex = 5;
-            this.lblSaldo.Text = "Quantidade inicial:";
+            this.lblSaldo.Text = "Quantidade:";
             // 
             // txtSaldo
             // 
@@ -216,6 +226,25 @@
             this.txtSaldo.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.txtSaldo.Leave += new System.EventHandler(this.txtSaldo_Leave);
             // 
+            // lblValor
+            // 
+            this.lblValor.AutoSize = true;
+            this.lblValor.Location = new System.Drawing.Point(140, 182);
+            this.lblValor.Name = "lblValor";
+            this.lblValor.Size = new System.Drawing.Size(109, 20);
+            this.lblValor.TabIndex = 7;
+            this.lblValor.Text = "Valor unit. (R$):";
+            // 
+            // txtValor
+            // 
+            this.txtValor.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtValor.Location = new System.Drawing.Point(140, 204);
+            this.txtValor.MaxLength = 12;
+            this.txtValor.Name = "txtValor";
+            this.txtValor.Size = new System.Drawing.Size(130, 30);
+            this.txtValor.TabIndex = 8;
+            this.txtValor.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // btnNovo
             // 
             this.btnNovo.BackColor = System.Drawing.Color.WhiteSmoke;
@@ -226,7 +255,7 @@
             this.btnNovo.Location = new System.Drawing.Point(20, 250);
             this.btnNovo.Name = "btnNovo";
             this.btnNovo.Size = new System.Drawing.Size(120, 38);
-            this.btnNovo.TabIndex = 7;
+            this.btnNovo.TabIndex = 9;
             this.btnNovo.Text = "➕ Novo";
             this.btnNovo.UseVisualStyleBackColor = false;
             this.btnNovo.Click += new System.EventHandler(this.btnNovo_Click);
@@ -241,7 +270,7 @@
             this.btnSalvar.Location = new System.Drawing.Point(150, 250);
             this.btnSalvar.Name = "btnSalvar";
             this.btnSalvar.Size = new System.Drawing.Size(120, 38);
-            this.btnSalvar.TabIndex = 8;
+            this.btnSalvar.TabIndex = 10;
             this.btnSalvar.Text = "💾 Salvar";
             this.btnSalvar.UseVisualStyleBackColor = false;
             this.btnSalvar.Click += new System.EventHandler(this.btnSalvar_Click);
@@ -268,6 +297,7 @@
             this.rdbEntrada.AutoSize = true;
             this.rdbEntrada.Location = new System.Drawing.Point(20, 28);
             this.rdbEntrada.Name = "rdbEntrada";
+            this.rdbEntrada.Size = new System.Drawing.Size(81, 24);
             this.rdbEntrada.TabIndex = 0;
             this.rdbEntrada.TabStop = true;
             this.rdbEntrada.Text = "Entrada";
@@ -278,6 +308,7 @@
             this.rdbSaida.AutoSize = true;
             this.rdbSaida.Location = new System.Drawing.Point(130, 28);
             this.rdbSaida.Name = "rdbSaida";
+            this.rdbSaida.Size = new System.Drawing.Size(67, 24);
             this.rdbSaida.TabIndex = 1;
             this.rdbSaida.TabStop = true;
             this.rdbSaida.Text = "Saída";
@@ -288,6 +319,7 @@
             this.lblQuantidade.AutoSize = true;
             this.lblQuantidade.Location = new System.Drawing.Point(20, 58);
             this.lblQuantidade.Name = "lblQuantidade";
+            this.lblQuantidade.Size = new System.Drawing.Size(90, 20);
             this.lblQuantidade.TabIndex = 2;
             this.lblQuantidade.Text = "Quantidade:";
             // 
@@ -413,6 +445,8 @@
         private System.Windows.Forms.TextBox txtNome;
         private System.Windows.Forms.Label lblSaldo;
         private System.Windows.Forms.TextBox txtSaldo;
+        private System.Windows.Forms.Label lblValor;
+        private System.Windows.Forms.TextBox txtValor;
         private System.Windows.Forms.Button btnNovo;
         private System.Windows.Forms.Button btnSalvar;
         private System.Windows.Forms.GroupBox grpMovimentacao;
