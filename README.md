@@ -26,6 +26,7 @@ Criei este projeto para praticar orientação a objetos, organização em camada
 - **Estoque de peças** com valor de venda, entradas e saídas e destaque para itens com saldo zerado
 - **Catálogo de serviços** com valor sugerido e opção de inativar
 - **Usuários** com login, senha em hash BCrypt e nível de acesso (Administrador ou Funcionário)
+- **Formatação automática dos campos** ao sair deles: CPF, telefone, placa, ano, nome, e-mail e valores
 
 ## Regras de negócio
 
@@ -86,7 +87,6 @@ Fluxo de uma operação: **Form → Service → DAO → banco**. As telas não a
 - Impressão da ordem de serviço / relatórios
 - Dashboard e tela de configurações (os botões já existem no menu)
 - Permissões por perfil também nas ordens de serviço
-- Máscaras de entrada para CPF, telefone e placa
 - Mover a string de conexão para o `App.config`
 
 ## O que aprendi
