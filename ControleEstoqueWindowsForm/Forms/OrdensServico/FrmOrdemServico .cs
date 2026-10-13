@@ -100,6 +100,9 @@ namespace ControleEstoqueWindowsForm
 
             Text = "Ordem de Serviço Nº " + ordem.Id + " - " + ordem.Status;
 
+            lblTitulo.Text = "📋 Ordem de Serviço Nº " + ordem.Id.ToString("D6");
+            lblSubTitulo.Text = "Lance os serviços e as peças e acompanhe o status da OS";
+
             cboCliente.Enabled = false;
             cboVeiculo.Enabled = false;
 
@@ -206,6 +209,9 @@ namespace ControleEstoqueWindowsForm
 
                 _idOrdem = novoId;
                 txtNumero.Text = novoId.ToString("D6");
+                lblTitulo.Text = "📋 Ordem de Serviço Nº " + novoId.ToString("D6");
+                lblSubTitulo.Text = "Lance os serviços e as peças e acompanhe o status da OS";
+                Text = "Ordem de Serviço Nº " + novoId + " - ABERTA";
                 txtDataAbertura.Text = ordemServico.DataAbertura.ToString("dd/MM/yyyy HH:mm");
                 cboCliente.Enabled = false;
                 cboVeiculo.Enabled = false;
