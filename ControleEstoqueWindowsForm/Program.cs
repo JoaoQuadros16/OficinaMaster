@@ -17,7 +17,7 @@ namespace ControleEstoqueWindowsForm
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FrmOrdensServico());
+            Application.Run(new FrmLogin());
         }
     }
 }
