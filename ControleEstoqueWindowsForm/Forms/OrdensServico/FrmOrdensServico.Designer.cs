@@ -50,7 +50,6 @@
             this.dgvOrdens = new System.Windows.Forms.DataGridView();
             this.btnNovaOS = new System.Windows.Forms.Button();
             this.btnAbrirOS = new System.Windows.Forms.Button();
-            this.btnRelatorio = new System.Windows.Forms.Button();
             this.btnAtualizar = new System.Windows.Forms.Button();
             this.btnVoltar = new System.Windows.Forms.Button();
             this.pnlTopo.SuspendLayout();
@@ -360,7 +359,6 @@
             this.ClientSize = new System.Drawing.Size(1000, 610);
             this.Controls.Add(this.btnVoltar);
             this.Controls.Add(this.btnAtualizar);
-            this.Controls.Add(this.btnRelatorio);
             this.Controls.Add(this.btnAbrirOS);
             this.Controls.Add(this.btnNovaOS);
             this.Controls.Add(this.dgvOrdens);
@@ -420,7 +418,6 @@
         private System.Windows.Forms.DataGridView dgvOrdens;
         private System.Windows.Forms.Button btnNovaOS;
         private System.Windows.Forms.Button btnAbrirOS;
-        private System.Windows.Forms.Button btnRelatorio;
         private System.Windows.Forms.Button btnAtualizar;
         private System.Windows.Forms.Button btnVoltar;
     }
