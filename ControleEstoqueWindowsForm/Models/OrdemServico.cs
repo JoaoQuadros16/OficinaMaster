@@ -23,5 +23,8 @@ namespace ControleEstoqueWindowsForm.Models
 
         public DateTime? DataFinalizacao { get; set; }
         public string Status { get; set; }
+
+        // soma dos serviços + peças, preenchido pela listagem
+        public decimal ValorTotal { get; set; }
     }
 }

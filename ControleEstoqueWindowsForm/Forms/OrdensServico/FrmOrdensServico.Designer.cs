@@ -318,21 +318,7 @@
             this.btnAbrirOS.UseVisualStyleBackColor = false;
             this.btnAbrirOS.Click += new System.EventHandler(this.btnAbrirOS_Click);
             // 
-            // btnRelatorio
             // 
-            this.btnRelatorio.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnRelatorio.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.btnRelatorio.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(56)))), ((int)(((byte)(100)))));
-            this.btnRelatorio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRelatorio.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.btnRelatorio.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(56)))), ((int)(((byte)(100)))));
-            this.btnRelatorio.Location = new System.Drawing.Point(320, 555);
-            this.btnRelatorio.Name = "btnRelatorio";
-            this.btnRelatorio.Size = new System.Drawing.Size(130, 38);
-            this.btnRelatorio.TabIndex = 15;
-            this.btnRelatorio.Text = "🖨️ Relatório";
-            this.btnRelatorio.UseVisualStyleBackColor = false;
-            this.btnRelatorio.Click += new System.EventHandler(this.btnRelatorio_Click);
             // 
             // btnAtualizar
             // 
