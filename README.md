@@ -65,9 +65,13 @@ Fluxo de uma operação: **Form → Service → DAO → banco**. As telas não a
 |-------------------|------------------|
 | ![Ordens de serviço](ImgREADME/ordens-servico.png) | ![Ordem de serviço](ImgREADME/ordem-servico.png) |
 
+| Clientes | Veículos |
+|----------|----------|
+| ![Clientes](ImgREADME/Cliente.png) | ![Veículos](ImgREADME/Veiculo.png) |
+
 | Estoque | Serviços |
 |---------|----------|
-| ![Estoque](ImgREADME/estoque.png) | ![Serviços](ImgREADME/servicos.png) |
+| ![Estoque](ImgREADME/estoque.png) | ![Serviços](ImgREADME/servico.png) |
 
 ## Como executar
 
