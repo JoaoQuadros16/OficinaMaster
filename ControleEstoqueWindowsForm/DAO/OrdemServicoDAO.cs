@@ -17,14 +17,14 @@ namespace ControleEstoqueWindowsForm.DAO
             mensagemErro = string.Empty;
             try
             {
-                using(SqlConnection conn = Conexao.ObterConexao())
+                using (SqlConnection conn = Conexao.ObterConexao())
                 {
                     conn.Open();
                     string sql = @"INSERT INTO OrdensServico
-                               (ClienteId, VeiculoId, DataAbertura, DataFinalizacao, Descricao, Status)
-                               OUTPUT INSERTED.Id
-                               VALUES
-                               (@ClienteId, @VeiculoId, @DataAbertura, @DataFinalizacao, @Descricao, @Status)";
+                                   (ClienteId, VeiculoId, DataAbertura, DataFinalizacao, Descricao, Status)
+                                   OUTPUT INSERTED.Id
+                                   VALUES
+                                   (@ClienteId, @VeiculoId, @DataAbertura, @DataFinalizacao, @Descricao, @Status)";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
 
@@ -52,6 +52,7 @@ namespace ControleEstoqueWindowsForm.DAO
                 return 0;
             }
         }
+
         public List<OrdemServico> ListarOrdensServico(out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -62,17 +63,17 @@ namespace ControleEstoqueWindowsForm.DAO
                 {
                     conn.Open();
                     string sql = @"SELECT os.Id,
-                                  os.ClienteId,
-                                  os.VeiculoId,
-                                  c.Nome AS Cliente,
-                                  v.Modelo + ' - ' + v.Placa AS Veiculo,
-                                  os.DataAbertura,
-                                  os.DataFinalizacao,
-                                  os.Descricao,
-                                  os.Status
-                           FROM OrdensServico os
-                           INNER JOIN Clientes c ON c.Id = os.ClienteId
-                           INNER JOIN Veiculos v ON v.Id = os.VeiculoId";
+                                          os.ClienteId,
+                                          os.VeiculoId,
+                                          c.Nome AS Cliente,
+                                          v.Modelo + ' - ' + v.Placa AS Veiculo,
+                                          os.DataAbertura,
+                                          os.DataFinalizacao,
+                                          os.Descricao,
+                                          os.Status
+                                   FROM OrdensServico os
+                                   INNER JOIN Clientes c ON c.Id = os.ClienteId
+                                   INNER JOIN Veiculos v ON v.Id = os.VeiculoId";
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -101,6 +102,7 @@ namespace ControleEstoqueWindowsForm.DAO
             }
             return ordensServico;
         }
+
         public OrdemServico ObterPorId(int id, out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -111,8 +113,8 @@ namespace ControleEstoqueWindowsForm.DAO
                 {
                     conn.Open();
                     string sql = @"SELECT Id, ClienteId, VeiculoId, DataAbertura, DataFinalizacao, Descricao, Status
-                           FROM OrdensServico
-                           WHERE Id = @Id";
+                                   FROM OrdensServico
+                                   WHERE Id = @Id";
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@Id", id);
 
@@ -140,7 +142,11 @@ namespace ControleEstoqueWindowsForm.DAO
             }
             return ordem;
         }
-        public bool AtualizarOS(OrdemServico ordem, List<OrdemServicoItemServico> servicos, out string mensagemErro)
+
+        // Atualiza a OS e regrava serviços e peças numa única transação:
+        // se qualquer comando falhar, nada é gravado.
+        public bool AtualizarOS(OrdemServico ordem, List<OrdemServicoItemServico> servicos,
+                                List<OrdemServicoPecas> pecas, out string mensagemErro)
         {
             mensagemErro = string.Empty;
 
@@ -153,29 +159,48 @@ namespace ControleEstoqueWindowsForm.DAO
                 {
                     // 1. atualiza a OS
                     string sqlOS = @"UPDATE OrdensServico
-                             SET Descricao = @Descricao
-                             WHERE Id = @Id";
+                                     SET Descricao = @Descricao
+                                     WHERE Id = @Id";
                     SqlCommand cmdOS = new SqlCommand(sqlOS, conn, transacao);
                     cmdOS.Parameters.AddWithValue("@Descricao", ordem.DescricaoProblema);
                     cmdOS.Parameters.AddWithValue("@Id", ordem.Id);
                     cmdOS.ExecuteNonQuery();
 
                     // 2. apaga os serviços antigos
-                    string sqlDelete = "DELETE FROM OrdemServicoServicos WHERE OrdemServicoId = @Id";
-                    SqlCommand cmdDelete = new SqlCommand(sqlDelete, conn, transacao);
-                    cmdDelete.Parameters.AddWithValue("@Id", ordem.Id);
-                    cmdDelete.ExecuteNonQuery();
+                    string sqlDeleteServicos = "DELETE FROM OrdemServicoServicos WHERE OrdemServicoId = @Id";
+                    SqlCommand cmdDeleteServicos = new SqlCommand(sqlDeleteServicos, conn, transacao);
+                    cmdDeleteServicos.Parameters.AddWithValue("@Id", ordem.Id);
+                    cmdDeleteServicos.ExecuteNonQuery();
 
                     // 3. grava os serviços da lista
-                    string sqlInsert = @"INSERT INTO OrdemServicoServicos (OrdemServicoId, ServicoId, Valor)
-                                 VALUES (@OrdemServicoId, @ServicoId, @Valor)";
+                    string sqlInsertServico = @"INSERT INTO OrdemServicoServicos (OrdemServicoId, ServicoId, Valor)
+                                                VALUES (@OrdemServicoId, @ServicoId, @Valor)";
                     foreach (OrdemServicoItemServico item in servicos)
                     {
-                        SqlCommand cmdItem = new SqlCommand(sqlInsert, conn, transacao);
-                        cmdItem.Parameters.AddWithValue("@OrdemServicoId", ordem.Id);
-                        cmdItem.Parameters.AddWithValue("@ServicoId", item.ServicoId);
-                        cmdItem.Parameters.AddWithValue("@Valor", item.Valor);
-                        cmdItem.ExecuteNonQuery();
+                        SqlCommand cmdServico = new SqlCommand(sqlInsertServico, conn, transacao);
+                        cmdServico.Parameters.AddWithValue("@OrdemServicoId", ordem.Id);
+                        cmdServico.Parameters.AddWithValue("@ServicoId", item.ServicoId);
+                        cmdServico.Parameters.AddWithValue("@Valor", item.Valor);
+                        cmdServico.ExecuteNonQuery();
+                    }
+
+                    // 4. apaga as peças antigas
+                    string sqlDeletePecas = "DELETE FROM OrdemServicoPecas WHERE OrdemServicoId = @Id";
+                    SqlCommand cmdDeletePecas = new SqlCommand(sqlDeletePecas, conn, transacao);
+                    cmdDeletePecas.Parameters.AddWithValue("@Id", ordem.Id);
+                    cmdDeletePecas.ExecuteNonQuery();
+
+                    // 5. grava as peças da lista
+                    string sqlInsertPeca = @"INSERT INTO OrdemServicoPecas (OrdemServicoId, ProdutoId, Quantidade, ValorUnitario)
+                                             VALUES (@OrdemServicoId, @ProdutoId, @Quantidade, @ValorUnitario)";
+                    foreach (OrdemServicoPecas peca in pecas)
+                    {
+                        SqlCommand cmdPeca = new SqlCommand(sqlInsertPeca, conn, transacao);
+                        cmdPeca.Parameters.AddWithValue("@OrdemServicoId", ordem.Id);
+                        cmdPeca.Parameters.AddWithValue("@ProdutoId", peca.ProdutoId);
+                        cmdPeca.Parameters.AddWithValue("@Quantidade", peca.Quantidade);
+                        cmdPeca.Parameters.AddWithValue("@ValorUnitario", peca.ValorUnitario);
+                        cmdPeca.ExecuteNonQuery();
                     }
 
                     transacao.Commit();
@@ -189,35 +214,7 @@ namespace ControleEstoqueWindowsForm.DAO
                 }
             }
         }
-        public bool CadastrarServicoOrdem(OrdemServicoItemServico item, out string mensagemErro)
-        {
-            mensagemErro = string.Empty;
-            try
-            {
-                using (SqlConnection conn = Conexao.ObterConexao())
-                {
-                    conn.Open();
-                    string sql = @"INSERT INTO OrdemServicoServicos (OrdemServicoId, ServicoId, Valor)
-                                   VALUES (@OrdemServicoId, @ServicoId, @Valor);
-                                   SELECT SCOPE_IDENTITY();";
 
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-
-                    cmd.Parameters.AddWithValue("@OrdemServicoId", item.OrdemServicoId);
-                    cmd.Parameters.AddWithValue("@ServicoId", item.ServicoId);
-                    cmd.Parameters.AddWithValue("@Valor", item.Valor);
-
-                    cmd.ExecuteNonQuery();
-                    
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                mensagemErro = ex.Message;
-                return false;
-            }
-        }
         public List<OrdemServicoItemServico> ListarServicosDaOS(int idOrdem, out string mensagemErro)
         {
             mensagemErro = string.Empty;
@@ -228,13 +225,13 @@ namespace ControleEstoqueWindowsForm.DAO
                 {
                     conn.Open();
                     string sql = @"SELECT oss.Id,
-                                  oss.OrdemServicoId,
-                                  oss.ServicoId,
-                                  s.Descricao,
-                                  oss.Valor
-                           FROM OrdemServicoServicos oss
-                           INNER JOIN servicos s ON s.Id = oss.ServicoId
-                           WHERE oss.OrdemServicoId = @IdOrdem";
+                                          oss.OrdemServicoId,
+                                          oss.ServicoId,
+                                          s.Descricao,
+                                          oss.Valor
+                                   FROM OrdemServicoServicos oss
+                                   INNER JOIN servicos s ON s.Id = oss.ServicoId
+                                   WHERE oss.OrdemServicoId = @IdOrdem";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@IdOrdem", idOrdem);
@@ -249,6 +246,51 @@ namespace ControleEstoqueWindowsForm.DAO
                             item.ServicoId = reader.GetInt32(2);
                             item.Descricao = reader.GetString(3);
                             item.Valor = reader.GetDecimal(4);
+                            itens.Add(item);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagemErro = ex.Message;
+            }
+            return itens;
+        }
+
+        public List<OrdemServicoPecas> ListarPecasOS(int idOrdem, out string mensagemErro)
+        {
+            mensagemErro = string.Empty;
+            List<OrdemServicoPecas> itens = new List<OrdemServicoPecas>();
+            try
+            {
+                using (SqlConnection conn = Conexao.ObterConexao())
+                {
+                    conn.Open();
+                    string sql = @"SELECT osp.Id,
+                                          osp.OrdemServicoId,
+                                          osp.ProdutoId,
+                                          p.nome,
+                                          osp.Quantidade,
+                                          osp.ValorUnitario
+                                   FROM OrdemServicoPecas osp
+                                   INNER JOIN produto p ON p.id = osp.ProdutoId
+                                   WHERE osp.OrdemServicoId = @IdOrdem";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@IdOrdem", idOrdem);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            OrdemServicoPecas item = new OrdemServicoPecas();
+                            item.Id = reader.GetInt32(0);
+                            item.OrdemServicoId = reader.GetInt32(1);
+                            item.ProdutoId = reader.GetInt32(2);
+                            item.Descricao = reader.GetString(3);
+                            item.Quantidade = reader.GetInt32(4);
+                            item.ValorUnitario = reader.GetDecimal(5);
                             itens.Add(item);
                         }
                     }

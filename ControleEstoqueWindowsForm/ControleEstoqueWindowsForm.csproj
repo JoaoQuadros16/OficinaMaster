@@ -156,6 +156,7 @@
     </Compile>
     <Compile Include="Models\OrdemServico.cs" />
     <Compile Include="Models\OrdemServicoItemServico.cs" />
+    <Compile Include="Models\OrdemServicoPecas.cs" />
     <Compile Include="Models\Servico.cs" />
     <Compile Include="Models\Sessao.cs" />
     <Compile Include="Models\Usuario.cs" />

@@ -17,9 +17,9 @@ namespace ControleEstoqueWindowsForm
     {
         private int _idOrdem;
         private int idCliente;
-        private int? clienteIdPreSelecionado;
         private List<Veiculo> todosVeiculos = new List<Veiculo>();
         private List<OrdemServicoItemServico> servicosDaOS = new List<OrdemServicoItemServico>();
+        private List<OrdemServicoPecas> pecasDaOS = new List<OrdemServicoPecas>();
 
         // Nova OS
         public FrmOrdemServico()
@@ -34,6 +34,7 @@ namespace ControleEstoqueWindowsForm
             _idOrdem = idOrdem;
             idCliente = _idCliente;
         }
+
         public void CarregaInformações()
         {
             ClienteService clienteService = new ClienteService();
@@ -65,10 +66,11 @@ namespace ControleEstoqueWindowsForm
             cboCliente.DataSource = clientes;
             cboCliente.SelectedIndex = -1;
 
-            // OS nova: não tem o que preencher
+            // OS nova: serviços e peças só depois de salvar
             if (_idOrdem == 0)
             {
                 grpServicos.Enabled = false;
+                grpPecas.Enabled = false;
                 return;
             }
 
@@ -82,21 +84,22 @@ namespace ControleEstoqueWindowsForm
                 return;
             }
 
-            //SERVIÇO
+            // SERVIÇOS
             ListaServicos();
+            grpServicos.Enabled = true;
+
+            // PEÇAS
+            ListaPecas();
+            grpPecas.Enabled = true;
 
             cboCliente.SelectedValue = ordem.ClienteId;
             CarregarVeiculosDoCliente(ordem.ClienteId);
             cboVeiculo.SelectedValue = ordem.VeiculoId;
             txtProblema.Text = ordem.DescricaoProblema;
             txtNumero.Text = ordem.Id.ToString("D6");
+            txtDataAbertura.Text = ordem.DataAbertura.ToString("dd/MM/yyyy HH:mm");
 
             Text = "Ordem de Serviço Nº " + ordem.Id + " - " + ordem.Status;
-
-            cboCliente.SelectedValue = ordem.ClienteId;
-            CarregarVeiculosDoCliente(ordem.ClienteId);
-            cboVeiculo.SelectedValue = ordem.VeiculoId;
-            txtProblema.Text = ordem.DescricaoProblema;
 
             cboCliente.Enabled = false;
             cboVeiculo.Enabled = false;
@@ -109,6 +112,15 @@ namespace ControleEstoqueWindowsForm
             }
 
             AtualizarGridServicos();
+
+            pecasDaOS = ordemServicoService.ListarPecasOS(_idOrdem, out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar peças da OS: " + mensagemErro);
+            }
+
+            AtualizarGridPecas();
         }
 
         private void CarregarVeiculosDoCliente(int clienteId)
@@ -132,10 +144,12 @@ namespace ControleEstoqueWindowsForm
             Cliente cliente = (Cliente)cboCliente.SelectedItem;
             return cliente.Id;
         }
+
         private void FrmOrdemServico_Load(object sender, EventArgs e)
         {
             CarregaInformações();
         }
+
         private void cboCliente_SelectionChangeCommitted(object sender, EventArgs e)
         {
             int? clienteId = ObterClienteSelcionado();
@@ -148,19 +162,10 @@ namespace ControleEstoqueWindowsForm
             }
 
             CarregarVeiculosDoCliente(clienteId.Value);
-
-            List<Veiculo> veiculosDoCliente = todosVeiculos
-                .Where(v => v.ClienteId == clienteId.Value)
-                .ToList();
-
-            cboVeiculo.DataSource = veiculosDoCliente;
-            cboVeiculo.SelectedIndex = -1;
-            cboVeiculo.Enabled = true;
         }
 
         private void cboCliente_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
         }
 
         private void btnSalvar_Click(object sender, EventArgs e)
@@ -207,12 +212,16 @@ namespace ControleEstoqueWindowsForm
                 ListaServicos();
                 grpServicos.Enabled = true;
 
-                MessageBox.Show("OS Nº " + novoId + " criada. Agora adicione os serviços.");
+                ListaPecas();
+                grpPecas.Enabled = true;
+
+                MessageBox.Show("OS Nº " + novoId + " criada. Agora adicione os serviços e as peças.");
             }
             else
             {
                 ordemServico.Id = _idOrdem;
-                bool sucesso = ordemServicoService.AtualizarOS(ordemServico, servicosDaOS, out mensagemErro);
+
+                bool sucesso = ordemServicoService.AtualizarOS(ordemServico, servicosDaOS, pecasDaOS, out mensagemErro);
 
                 if (sucesso)
                 {
@@ -226,10 +235,11 @@ namespace ControleEstoqueWindowsForm
         }
 
         // ---------------- Serviços ----------------
+
         private void ListaServicos()
         {
             ServicoServices servicoServices = new ServicoServices();
-            string mensagemErro; 
+            string mensagemErro;
             List<Servico> servicos = servicoServices.ListarServicos(out mensagemErro);
 
             if (!string.IsNullOrEmpty(mensagemErro))
@@ -237,12 +247,13 @@ namespace ControleEstoqueWindowsForm
                 MessageBox.Show("Erro ao carregar serviços: " + mensagemErro);
                 return;
             }
+
             cboServico.DisplayMember = "Descricao";
             cboServico.ValueMember = "Id";
             cboServico.DataSource = servicos;
             cboServico.SelectedIndex = -1;
-            
         }
+
         private void AtualizarGridServicos()
         {
             dgvServicos.DataSource = null;
@@ -261,6 +272,7 @@ namespace ControleEstoqueWindowsForm
             }
             lblSubtotalServicos.Text = "Subtotal: R$ " + subtotal.ToString("N2");
         }
+
         private Servico ServicoSelecionado()
         {
             if (cboServico.SelectedItem == null)
@@ -269,29 +281,32 @@ namespace ControleEstoqueWindowsForm
             }
             return (Servico)cboServico.SelectedItem;
         }
+
         private void cboServico_SelectedIndexChanged(object sender, EventArgs e)
         {
         }
+
         private void cboServico_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            if (cboServico.SelectedItem == null)
+            Servico servico = ServicoSelecionado();
+            if (servico == null)
             {
                 txtValorServico.Clear();
                 return;
             }
 
-            Servico servico = (Servico)cboServico.SelectedItem;
             txtValorServico.Text = servico.Valor.ToString("N2");
         }
 
         private void btnAdicionarServico_Click(object sender, EventArgs e)
         {
-            Servico servico  = ServicoSelecionado();
+            Servico servico = ServicoSelecionado();
             if (servico == null)
             {
                 MessageBox.Show("Selecione um serviço.");
                 return;
             }
+
             decimal valor;
             if (!decimal.TryParse(txtValorServico.Text, out valor) || valor <= 0)
             {
@@ -303,21 +318,16 @@ namespace ControleEstoqueWindowsForm
             OrdemServicoItemServico item = new OrdemServicoItemServico();
             item.OrdemServicoId = _idOrdem;
             item.ServicoId = servico.Id;
-            item.Valor = valor;
-
-            OrdemServicoService ordemServicoService = new OrdemServicoService();
-            string mensagemErro;
-            item.OrdemServicoId = _idOrdem;
-            item.ServicoId = servico.Id;
             item.Descricao = servico.Descricao;
             item.Valor = valor;
 
             servicosDaOS.Add(item);
             AtualizarGridServicos();
 
+            // repetido de propósito: com DataSource, o primeiro -1 às vezes é ignorado
+            cboServico.SelectedIndex = -1;
             cboServico.SelectedIndex = -1;
             txtValorServico.Clear();
-
         }
 
         private void btnRemoverServico_Click(object sender, EventArgs e)
@@ -335,16 +345,132 @@ namespace ControleEstoqueWindowsForm
 
         // ---------------- Peças ----------------
 
+        private void ListaPecas()
+        {
+            Estoque estoque = new Estoque();
+            string mensagemErro;
+            List<Produto> produtos = estoque.ListarProdutos(out mensagemErro);
+
+            if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                MessageBox.Show("Erro ao carregar peças: " + mensagemErro);
+                return;
+            }
+
+            cboPeca.DisplayMember = "Nome";
+            cboPeca.ValueMember = "Id";
+            cboPeca.DataSource = produtos;
+            cboPeca.SelectedIndex = -1;
+        }
+
+        private void AtualizarGridPecas()
+        {
+            dgvPecas.DataSource = null;
+            dgvPecas.DataSource = pecasDaOS;
+
+            dgvPecas.Columns["Id"].Visible = false;
+            dgvPecas.Columns["OrdemServicoId"].Visible = false;
+            dgvPecas.Columns["ProdutoId"].Visible = false;
+            dgvPecas.Columns["Descricao"].HeaderText = "Peça";
+            dgvPecas.Columns["Quantidade"].HeaderText = "Qtd";
+            dgvPecas.Columns["ValorUnitario"].HeaderText = "Valor unit.";
+            dgvPecas.Columns["ValorUnitario"].DefaultCellStyle.Format = "N2";
+            dgvPecas.Columns["ValorTotal"].HeaderText = "Total";
+            dgvPecas.Columns["ValorTotal"].DefaultCellStyle.Format = "N2";
+
+            decimal subtotal = 0;
+            foreach (OrdemServicoPecas item in pecasDaOS)
+            {
+                subtotal = subtotal + item.ValorTotal;
+            }
+            lblSubtotalPecas.Text = "Subtotal: R$ " + subtotal.ToString("N2");
+        }
+
+        private Produto PecaSelecionada()
+        {
+            if (cboPeca.SelectedItem == null)
+            {
+                return null;
+            }
+            return (Produto)cboPeca.SelectedItem;
+        }
+
+        private void cboPecas_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            Produto produto = PecaSelecionada();
+            if (produto == null)
+            {
+                txtValorPeca.Clear();
+                return;
+            }
+
+            txtValorPeca.Text = produto.Valor.ToString("N2");
+        }
+
         private void cboPeca_SelectedIndexChanged(object sender, EventArgs e)
         {
         }
 
         private void btnAdicionarPeca_Click(object sender, EventArgs e)
         {
+            Produto produto = PecaSelecionada();
+            if (produto == null)
+            {
+                MessageBox.Show("Selecione uma peça.");
+                return;
+            }
+
+            int quantidade;
+            if (!int.TryParse(txtQuantidadePeca.Text, out quantidade) || quantidade <= 0)
+            {
+                MessageBox.Show("Informe uma quantidade válida, maior que zero.");
+                txtQuantidadePeca.Focus();
+                return;
+            }
+
+            if (quantidade > produto.Quantidade)
+            {
+                MessageBox.Show("Saldo insuficiente. Em estoque: " + produto.Quantidade);
+                txtQuantidadePeca.Focus();
+                return;
+            }
+
+            decimal valor;
+            if (!decimal.TryParse(txtValorPeca.Text, out valor) || valor <= 0)
+            {
+                MessageBox.Show("Informe um valor válido, maior que zero.");
+                txtValorPeca.Focus();
+                return;
+            }
+
+            OrdemServicoPecas item = new OrdemServicoPecas();
+            item.OrdemServicoId = _idOrdem;
+            item.ProdutoId = produto.Id;
+            item.Quantidade = quantidade;
+            item.ValorUnitario = valor;
+            item.Descricao = produto.Nome;
+
+            pecasDaOS.Add(item);
+            AtualizarGridPecas();
+
+            // repetido de propósito: com DataSource, o primeiro -1 às vezes é ignorado
+            cboPeca.SelectedIndex = -1;
+            cboPeca.SelectedIndex = -1;
+            txtQuantidadePeca.Clear();
+            txtValorPeca.Clear();
         }
 
         private void btnRemoverPeca_Click(object sender, EventArgs e)
         {
+            if (dgvPecas.CurrentRow == null)
+            {
+                MessageBox.Show("Selecione uma peça para remover.");
+                return;
+            }
+
+            OrdemServicoPecas item = (OrdemServicoPecas)dgvPecas.CurrentRow.DataBoundItem;
+            pecasDaOS.Remove(item);
+            AtualizarGridPecas();
         }
 
         // ---------------- Status ----------------
@@ -368,7 +494,6 @@ namespace ControleEstoqueWindowsForm
 
         private void grpCabecalho_Enter(object sender, EventArgs e)
         {
-
         }
     }
 }

@@ -88,7 +88,6 @@ namespace ControleEstoqueWindowsForm
         }
         private void EditarOS()
         {
-            // TODO: abrir tela de edição para a OS selecionado no dataGridView1
             if (dgvOrdens.CurrentRow == null)
             {
                 MessageBox.Show("Selecione uma ordem de serviço para abrir.");
