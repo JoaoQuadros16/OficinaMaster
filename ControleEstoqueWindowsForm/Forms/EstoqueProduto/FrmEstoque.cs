@@ -48,6 +48,12 @@ namespace ControleEstoqueWindowsForm
             dgvProdutos.Columns["Quantidade"].Width = 100;
             dgvProdutos.Columns["Quantidade"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
+            dgvProdutos.Columns["Valor"].HeaderText = "Valor (R$)";
+            dgvProdutos.Columns["Valor"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dgvProdutos.Columns["Valor"].Width = 110;
+            dgvProdutos.Columns["Valor"].DefaultCellStyle.Format = "N2";
+            dgvProdutos.Columns["Valor"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
             // saldo zerado em vermelho: precisa repor
             foreach (DataGridViewRow linha in dgvProdutos.Rows)
             {
@@ -100,6 +106,7 @@ namespace ControleEstoqueWindowsForm
             txtCodigo.Clear();
             txtNome.Clear();
             txtSaldo.Clear();
+            txtValor.Clear();
             txtQuantidade.Clear();
             rdbEntrada.Checked = false;
             rdbSaida.Checked = false;
@@ -158,7 +165,13 @@ namespace ControleEstoqueWindowsForm
                 }
             }
             produto.Quantidade = quantidade;
-            produto.Valor = decimal.Parse(txtValor.Text);
+
+            decimal valor;
+            if (!LerValor(out valor))
+            {
+                return;
+            }
+            produto.Valor = valor;
 
             string mensagemErro;
             bool sucesso = estoque.CadastrarProduto(produto, out mensagemErro);
@@ -180,7 +193,13 @@ namespace ControleEstoqueWindowsForm
             Produto produto = new Produto();
             produto.Id = int.Parse(txtCodigo.Text);   // preenchido pelo sistema, sempre numérico
             produto.Nome = txtNome.Text.Trim();
-            produto.Valor = decimal.Parse(txtValor.Text);
+
+            decimal valor;
+            if (!LerValor(out valor))
+            {
+                return;
+            }
+            produto.Valor = valor;
 
             string mensagemErro;
             bool sucesso = estoque.AlterarProduto(produto, out mensagemErro);
@@ -195,6 +214,18 @@ namespace ControleEstoqueWindowsForm
             {
                 MessageBox.Show(mensagemErro);
             }
+        }
+
+        // lê o valor digitado; usado no cadastro e na edição
+        private bool LerValor(out decimal valor)
+        {
+            if (!decimal.TryParse(txtValor.Text, out valor) || valor < 0)
+            {
+                MessageBox.Show("Informe um valor válido para o produto.");
+                txtValor.Focus();
+                return false;
+            }
+            return true;
         }
 
         private void btnLancar_Click(object sender, EventArgs e)
