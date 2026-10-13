@@ -69,8 +69,7 @@ namespace ControleEstoqueWindowsForm
             // OS nova: serviços e peças só depois de salvar
             if (_idOrdem == 0)
             {
-                grpServicos.Enabled = false;
-                grpPecas.Enabled = false;
+                AplicarStatus("NOVA");
                 return;
             }
 
@@ -121,6 +120,8 @@ namespace ControleEstoqueWindowsForm
             }
 
             AtualizarGridPecas();
+
+            AplicarStatus(ordem.Status);
         }
 
         private void CarregarVeiculosDoCliente(int clienteId)
@@ -215,6 +216,8 @@ namespace ControleEstoqueWindowsForm
                 ListaPecas();
                 grpPecas.Enabled = true;
 
+                AplicarStatus("ABERTA");
+
                 MessageBox.Show("OS Nº " + novoId + " criada. Agora adicione os serviços e as peças.");
             }
             else
@@ -271,6 +274,7 @@ namespace ControleEstoqueWindowsForm
                 subtotal = subtotal + item.Valor;
             }
             lblSubtotalServicos.Text = "Subtotal: R$ " + subtotal.ToString("N2");
+            AtualizarTotal();
         }
 
         private Servico ServicoSelecionado()
@@ -384,6 +388,26 @@ namespace ControleEstoqueWindowsForm
                 subtotal = subtotal + item.ValorTotal;
             }
             lblSubtotalPecas.Text = "Subtotal: R$ " + subtotal.ToString("N2");
+            AtualizarTotal();
+        }
+
+        // ---------------- Total ----------------
+
+        private void AtualizarTotal()
+        {
+            decimal total = 0;
+
+            foreach (OrdemServicoItemServico servico in servicosDaOS)
+            {
+                total = total + servico.Valor;
+            }
+
+            foreach (OrdemServicoPecas peca in pecasDaOS)
+            {
+                total = total + peca.ValorTotal;
+            }
+
+            lblTotal.Text = "Total: R$ " + total.ToString("N2");
         }
 
         private Produto PecaSelecionada()
@@ -475,16 +499,168 @@ namespace ControleEstoqueWindowsForm
 
         // ---------------- Status ----------------
 
+        // Ajusta o selo do cabeçalho e o que pode ser editado conforme o status da OS
+        private void AplicarStatus(string status)
+        {
+            lblStatusOS.Text = status;
+
+            if (status == "NOVA")
+            {
+                lblStatusOS.BackColor = Color.FromArgb(100, 116, 139);   // cinza
+                grpServicos.Enabled = false;
+                grpPecas.Enabled = false;
+                txtProblema.ReadOnly = false;
+                btnSalvar.Enabled = true;
+                btnFinalizar.Enabled = false;
+                btnIniciar.Enabled = false;
+                btnCancelarOS.Enabled = false;
+            }
+            else if (status == "FINALIZADA" || status == "CANCELADA")
+            {
+                if (status == "FINALIZADA")
+                {
+                    lblStatusOS.BackColor = Color.FromArgb(22, 163, 74);  // verde
+                }
+                else
+                {
+                    lblStatusOS.BackColor = Color.FromArgb(220, 38, 38);  // vermelho
+                }
+
+                // OS encerrada: só consulta
+                grpServicos.Enabled = false;
+                grpPecas.Enabled = false;
+                txtProblema.ReadOnly = true;
+                btnSalvar.Enabled = false;
+                btnFinalizar.Enabled = false;
+                btnCancelarOS.Enabled = false;
+                btnIniciar.Enabled = false;
+            }
+            else
+            {
+                // ABERTA ou EM ANDAMENTO
+                if (status == "EM ANDAMENTO")
+                {
+                    lblStatusOS.BackColor = Color.FromArgb(217, 119, 6);  // laranja
+                    btnIniciar.Enabled = false;                           // já foi iniciada
+                }
+                else
+                {
+                    lblStatusOS.BackColor = Color.FromArgb(37, 99, 235);  // azul
+                    btnIniciar.Enabled = true;
+                }
+
+                grpServicos.Enabled = true;
+                grpPecas.Enabled = true;
+                txtProblema.ReadOnly = false;
+                btnSalvar.Enabled = true;
+                btnFinalizar.Enabled = true;
+                btnCancelarOS.Enabled = true;
+            }
+        }
+
         private void btnIniciar_Click(object sender, EventArgs e)
         {
+            if (_idOrdem == 0)
+            {
+                MessageBox.Show("Salve a OS antes de iniciar.");
+                return;
+            }
+
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            string mensagemErro;
+
+            bool sucesso = ordemServicoService.IniciarOS(_idOrdem, out mensagemErro);
+            if (!sucesso)
+            {
+                MessageBox.Show("Não foi possível iniciar a OS: " + mensagemErro);
+                return;
+            }
+
+            AplicarStatus("EM ANDAMENTO");
+            Text = "Ordem de Serviço Nº " + _idOrdem + " - EM ANDAMENTO";
         }
 
         private void btnFinalizar_Click(object sender, EventArgs e)
         {
+            if (_idOrdem == 0)
+            {
+                MessageBox.Show("Salve a OS antes de finalizar.");
+                return;
+            }
+
+            DialogResult resposta = MessageBox.Show(
+                "Finalizar a OS Nº " + _idOrdem + "?\n\n" +
+                "As peças serão baixadas do estoque e a OS não poderá mais ser alterada.",
+                "Finalizar OS",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (resposta != DialogResult.Yes)
+            {
+                return;
+            }
+
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            string mensagemErro;
+
+            // 1. grava o que está na tela, para a baixa usar exatamente essas peças
+            OrdemServico ordemServico = new OrdemServico();
+            ordemServico.Id = _idOrdem;
+            ordemServico.DescricaoProblema = txtProblema.Text;
+
+            bool salvou = ordemServicoService.AtualizarOS(ordemServico, servicosDaOS, pecasDaOS, out mensagemErro);
+            if (!salvou)
+            {
+                MessageBox.Show("Falha ao salvar a OS antes de finalizar: " + mensagemErro);
+                return;
+            }
+
+            // 2. finaliza: status, data e baixa no estoque, tudo ou nada
+            bool finalizou = ordemServicoService.FinalizarOS(_idOrdem, servicosDaOS, pecasDaOS, out mensagemErro);
+            if (!finalizou)
+            {
+                MessageBox.Show("Não foi possível finalizar a OS: " + mensagemErro);
+                return;
+            }
+
+            AplicarStatus("FINALIZADA");
+            Text = "Ordem de Serviço Nº " + _idOrdem + " - FINALIZADA";
+            MessageBox.Show("OS Nº " + _idOrdem + " finalizada com sucesso!");
         }
 
         private void btnCancelarOS_Click(object sender, EventArgs e)
         {
+            if (_idOrdem == 0)
+            {
+                MessageBox.Show("Esta OS ainda não foi salva. Para descartar, use o botão Voltar.");
+                return;
+            }
+
+            DialogResult resposta = MessageBox.Show(
+                "Cancelar a OS Nº " + _idOrdem + "?\n\n" +
+                "Ela ficará apenas para consulta e não poderá mais ser alterada.",
+                "Cancelar OS",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (resposta != DialogResult.Yes)
+            {
+                return;
+            }
+
+            OrdemServicoService ordemServicoService = new OrdemServicoService();
+            string mensagemErro;
+
+            bool sucesso = ordemServicoService.CancelarOS(_idOrdem, out mensagemErro);
+            if (!sucesso)
+            {
+                MessageBox.Show("Não foi possível cancelar a OS: " + mensagemErro);
+                return;
+            }
+
+            AplicarStatus("CANCELADA");
+            Text = "Ordem de Serviço Nº " + _idOrdem + " - CANCELADA";
+            MessageBox.Show("OS Nº " + _idOrdem + " cancelada.");
         }
 
         private void btnVoltar_Click(object sender, EventArgs e)

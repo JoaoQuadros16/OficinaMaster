@@ -18,9 +18,15 @@ namespace ControleEstoqueWindowsForm.Services
             return ordemServicoDAO.CadastrarOS(ordemServico, out mensagemErro);
         }
 
-        public List<OrdemServico> ListarOrdensServico(out string mensagemErro)
+        public List<OrdemServico> ListarOrdensServico(string pesquisa, DateTime inicio, DateTime fim, out string mensagemErro)
         {
-            return ordemServicoDAO.ListarOrdensServico(out mensagemErro);
+            if (inicio.Date > fim.Date)
+            {
+                mensagemErro = "A data inicial não pode ser maior que a data final.";
+                return new List<OrdemServico>();
+            }
+
+            return ordemServicoDAO.ListarOrdensServico(pesquisa.Trim(), inicio, fim, out mensagemErro);
         }
 
         public OrdemServico ObterObterPorId(int id, out string mensagemErro)
@@ -32,6 +38,30 @@ namespace ControleEstoqueWindowsForm.Services
                                 List<OrdemServicoPecas> pecas, out string mensagemErro)
         {
             return ordemServicoDAO.AtualizarOS(ordem, servicos, pecas, out mensagemErro);
+        }
+
+        public bool IniciarOS(int idOrdem, out string mensagemErro)
+        {
+            return ordemServicoDAO.AlterarStatus(idOrdem, "EM ANDAMENTO", out mensagemErro);
+        }
+
+        // Cancelar não mexe no estoque: a baixa só acontece no Finalizar
+        public bool CancelarOS(int idOrdem, out string mensagemErro)
+        {
+            return ordemServicoDAO.AlterarStatus(idOrdem, "CANCELADA", out mensagemErro);
+        }
+
+        // Regra: só finaliza OS que tenha pelo menos um serviço ou uma peça
+        public bool FinalizarOS(int idOrdem, List<OrdemServicoItemServico> servicos,
+                                List<OrdemServicoPecas> pecas, out string mensagemErro)
+        {
+            if (servicos.Count == 0 && pecas.Count == 0)
+            {
+                mensagemErro = "Adicione pelo menos um serviço ou uma peça antes de finalizar.";
+                return false;
+            }
+
+            return ordemServicoDAO.FinalizarOS(idOrdem, out mensagemErro);
         }
 
         public List<OrdemServicoItemServico> ListarServicosDaOS(int idOrdem, out string mensagemErro)
