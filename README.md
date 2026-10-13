@@ -1,24 +1,43 @@
-# Oficina Master (versão desktop)
+# Oficina Master
 
-> **Status: descontinuado.** Esta foi a primeira versão do sistema, desenvolvida em Windows Forms.
-> O projeto está sendo reconstruído como aplicação web em **MecanicaMaster**, com ASP.NET Core Web API e HTML/CSS/JavaScript. <!-- troque por link quando o repositório web estiver público -->
+Sistema desktop de gestão para oficina mecânica, desenvolvido em **C# com Windows Forms e SQL Server**.
+O centro do sistema é a **ordem de serviço**: abrir a OS para o veículo de um cliente, lançar serviços e peças, acompanhar o status e finalizar com baixa automática no estoque.
 
-Sistema de gestão para oficina mecânica, com cadastro de clientes e veículos, controle de estoque de peças e login de usuários.
-Criei este projeto para praticar **orientação a objetos em C#**, organização em camadas e integração com banco de dados.
+Criei este projeto para praticar orientação a objetos, organização em camadas e integração com banco de dados com regras de negócio reais.
 
 ## Tecnologias
 
 - C# com Windows Forms (.NET Framework 4.7.2)
-- SQL Server, com acesso via ADO.NET (`SqlConnection` / `SqlCommand` com consultas parametrizadas)
+- SQL Server, com acesso via ADO.NET (`SqlConnection` / `SqlCommand` com consultas parametrizadas e `SqlTransaction`)
 - BCrypt.Net-Next para hash de senhas
 
 ## Funcionalidades
 
-- **Login** com senha armazenada como hash BCrypt e verificação de usuário ativo
-- **Usuários:** cadastro com confirmação de senha
-- **Clientes:** cadastro, listagem, edição e exclusão, com visualização dos veículos de cada cliente
-- **Veículos:** cadastro e edição vinculados ao cliente, com busca por nome do cliente, placa, marca, modelo ou cor
-- **Estoque de peças:** cadastro, listagem, busca, ajuste de quantidade, edição e exclusão de produtos
+**Ordens de serviço**
+- Abertura de OS vinculada a um cliente e a um dos veículos dele
+- Lançamento de **serviços** (com valor sugerido pelo catálogo e editável na OS) e **peças** do estoque (com conferência de saldo)
+- Total da OS calculado na hora (serviços + peças)
+- Ciclo de status: **Aberta → Em andamento → Finalizada**, ou **Cancelada**, com cores e botões habilitados conforme o status
+- **Finalização com baixa no estoque dentro de uma transação**: se alguma peça não tiver saldo suficiente, nada é gravado (rollback)
+- Listagem com busca por cliente, veículo ou número da OS, filtro por status e período, coluna de total e cards com a contagem por status
+
+**Cadastros**
+- **Clientes** e **veículos** vinculados ao cliente
+- **Estoque de peças** com valor de venda, entradas e saídas e destaque para itens com saldo zerado
+- **Catálogo de serviços** com valor sugerido e opção de inativar
+- **Usuários** com login, senha em hash BCrypt e nível de acesso (Administrador ou Funcionário)
+
+## Regras de negócio
+
+Algumas decisões que tomei no projeto:
+
+- **O valor fica gravado na OS.** Se o preço de um serviço ou peça mudar depois, as ordens antigas continuam com o valor cobrado na época.
+- **A baixa no estoque acontece só na finalização**, não ao lançar a peça. Enquanto a OS está aberta, as peças ainda podem ser alteradas.
+- **A finalização é protegida contra baixa em dobro.** O status muda antes da baixa, com uma condição que impede finalizar uma OS já finalizada ou cancelada.
+- **Cliente e veículo não podem ser trocados** depois que a OS é criada. Só a descrição e os itens podem ser alterados.
+- **Não é possível finalizar uma OS sem nenhum serviço ou peça.**
+- **OS finalizada ou cancelada fica bloqueada** para edição.
+- **Funcionários não alteram o estoque.** Cadastro, movimentação e exclusão de produtos são exclusivos do administrador.
 
 ## Estrutura do projeto
 
@@ -26,52 +45,58 @@ O código está separado em camadas, cada uma com uma responsabilidade:
 
 ```
 ControleEstoqueWindowsForm/
-├── Models/     → entidades (Cliente, Veiculo, Produto, Usuario)
-├── DAO/        → acesso ao banco de dados (SQL)
-├── Services/   → regras de negócio e autenticação
-├── Forms/      → telas, organizadas por módulo
-└── Classes/    → conexão com o banco
+├── Models/       → entidades (OrdemServico, Cliente, Veiculo, Produto, Servico, Usuario...)
+├── DAO/          → acesso ao banco de dados (SQL)
+├── Services/     → regras de negócio, validações e autenticação
+├── Forms/        → telas, organizadas por módulo
+├── Validacoes/   → validação e formatação de campos
+└── Classes/      → conexão com o banco
 ```
 
-As telas seguem um padrão: uma tela de **listagem** com pesquisa e grade de resultados, e uma tela **modal** separada para cadastro e edição.
+Fluxo de uma operação: **Form → Service → DAO → banco**. As telas não acessam o banco diretamente.
 
 ## Capturas de tela
 
-<!-- crie a pasta docs/img e adicione 3 ou 4 prints das telas principais -->
+| Login | Menu principal |
+|-------|----------------|
+| ![Login](ImgREADME/login.png) | ![Menu principal](ImgREADME/principal.png) |
 
-| Login | Clientes | Veículos |
-|-------|----------|----------|
-| ![Login](docs/img/login.png) | ![Clientes](docs/img/clientes.png) | ![Veículos](docs/img/veiculos.png) |
+| Ordens de serviço | Ordem de serviço |
+|-------------------|------------------|
+| ![Ordens de serviço](ImgREADME/ordens-servico.png) | ![Ordem de serviço](ImgREADME/ordem-servico.png) |
+
+| Estoque | Serviços |
+|---------|----------|
+| ![Estoque](ImgREADME/estoque.png) | ![Serviços](ImgREADME/servicos.png) |
 
 ## Como executar
 
 1. Clone o repositório e abra `ControleEstoqueWindowsForm.sln` no Visual Studio.
-2. Crie o banco `OficinaMasterDB` no SQL Server com as tabelas `usuario`, `clientes`, `veiculos` e `produto`. <!-- se adicionar um script .sql, indique o caminho aqui -->
+2. No SQL Server, execute o script [`schema.sql`](schema.sql). Ele cria o banco `OficinaMasterDB`, as tabelas, um usuário administrador e alguns serviços e peças de exemplo.
 3. A conexão está em `Classes/Conexao.cs` e usa autenticação do Windows em `localhost`. Ajuste se o seu servidor for diferente.
 4. Restaure os pacotes NuGet e execute o projeto.
+5. Entre com **login `admin`** e **senha `admin123`**.
 
-## O que ficou pendente
+## Melhorias futuras
 
-- Módulos de Ordens de Serviço, Serviços, Financeiro, Dashboard e Configurações (os botões existem no menu, mas as telas não foram implementadas)
+- Impressão da ordem de serviço / relatórios
+- Dashboard e tela de configurações (os botões já existem no menu)
+- Permissões por perfil também nas ordens de serviço
 - Máscaras de entrada para CPF, telefone e placa
-- Listas pré-definidas para marca, modelo e cor, em vez de texto livre
-- Tratamento de erros mais completo
 - Mover a string de conexão para o `App.config`
 
-## Por que migrei para web
+## O que aprendi
 
-Durante o desenvolvimento percebi que um sistema desktop limitava o acesso a um único computador e me afastava do que eu mais queria aprender: **APIs, requisições HTTP e front-end**.
-Por isso decidi recomeçar do zero em uma arquitetura web, usando este projeto como referência das regras de negócio.
+- Separar o código em camadas e manter as regras de negócio fora das telas
+- Usar transações (`BeginTransaction`, `Commit`, `Rollback`) para manter o banco consistente em operações com várias etapas
+- Modelar relacionamentos mestre-detalhe (uma OS com vários serviços e peças)
+- Fazer consultas com `JOIN` e subconsultas para montar listagens com totais
+- Escrever SQL parametrizado para evitar SQL Injection e guardar senhas com hash
+- Organizar o histórico do Git com commits pequenos e mensagens padronizadas
 
-## O que aprendi com este projeto
+## Uso de IA no desenvolvimento
 
-<!-- reescreva com suas palavras -->
-
-- Aplicar orientação a objetos e separar o código em camadas (Models, DAO, Services, Forms)
-- Fazer CRUD com ADO.NET usando consultas parametrizadas, que protegem contra SQL Injection
-- Armazenar senhas com hash em vez de texto puro
-- Migrar o banco de MySQL para SQL Server
-- Avaliar quando uma tecnologia deixa de atender ao objetivo do projeto
+Usei o Claude (IA da Anthropic) como apoio na parte visual do projeto, no layout das telas.
 
 ---
 
